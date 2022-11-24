@@ -21,32 +21,73 @@
       </div>
       <div id="navbar" class="navbar-menu">
         <div class="navbar-start">
-          <router-link to="/" class="navbar-item icon-text">
-              <span class="icon">
-                <i class="fa fa-envelope"></i>
-              </span>
-              <span>Chat Rooms</span>
+          <router-link v-if="isAuthenticated" to="/dashboard" class="navbar-item icon-text">
+            <span class="icon">
+                  <i class="fa fa-envelope"></i>
+                </span>
+                <span>Chat Rooms</span>
           </router-link>
-          
+          <router-link v-if="isAuthenticated" to="/profile" class="navbar-item icon-text">
+              <span class="icon">
+                <i class="fa fa-user"></i>
+              </span>
+              <span>Profile</span>
+          </router-link>
         </div>
         <div class="navbar-end">
-        <div class="navbar-item">
-          <router-link to="/about" class="navbar-item icon-text button">
+          <div class="navbar-item">
+            <div class="buttons">
+              <router-link v-if="!isAuthenticated" to="/login" class="button is-info">
                 <span class="icon">
-                  <i class="fa fa-info-circle"></i>
+                  <i class="fa fa-sign-in"></i>
                 </span>
-                <span>About</span>
-            </router-link>
+                <strong>Sign In</strong>
+              </router-link>
+              <router-link v-if="!isAuthenticated" to="/sign-up" class="button is-success">
+                <span class="icon">
+                  <i class="fa fa-user-plus"></i>
+                </span>
+                <strong>Sign Up</strong>
+              </router-link>
+              <button v-if="isAuthenticated" class="button is-dark" @click="doLogout()">
+                <span class="icon">
+                  <i class="fa fa-sign-out"></i>
+                </span>
+                <strong>Logout</strong>
+              </button>
+              <router-link to="/about" class="navbar-item icon-text button">
+                  <span class="icon">
+                    <i class="fa fa-info-circle"></i>
+                  </span>
+                  <span>About</span>
+              </router-link>
+            </div>
+            </div>
         </div>
-      </div>
       </div>
     </nav>
   </template>
 <script lang="ts">
+
+    import userModule from '@/store/users';
+    import { User } from '@/utils/types';
     export default {
       name: 'NavHeader',
+      data() {
+        return {
+        }
+      },
       computed: {
-        
+        // need annotation
+        isAuthenticated(): boolean {
+          return userModule.isAuthenticated
+        },
+        isLoading(): boolean {
+          return userModule.isLoading
+        },
+        user(): User | undefined {
+          return userModule.user
+        }
       },
       methods: {
       },

@@ -69,15 +69,15 @@ class HttpClient {
   }
 
   async get(url: string) {
-    return await this.client.get(url).then((response: AxiosResponse) => response.data);
+    return await this.client.get(url).then((response: AxiosResponse) => response);
   }
 
   async post<T>(url: string, body: T) {
-    return await this.client.post(url, body).then((response: AxiosResponse) => response.data);
+    return await this.client.post(url, body).then((response: AxiosResponse) => response);
   }
 
   async put<T>(url: string, body: T) {
-    return await this.client.put(url, body).then((response: AxiosResponse) => response.data);
+    return await this.client.put(url, body).then((response: AxiosResponse) => response);
   }
 
   async delete(url: string) {
