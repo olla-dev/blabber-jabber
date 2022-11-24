@@ -1,1 +1,1 @@
-default_app_config = 'vessels.apps.ActivityAppConfig'
+default_app_config = 'chat.apps.ActivityAppConfig'
