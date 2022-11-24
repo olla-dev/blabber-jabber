@@ -1,6 +1,41 @@
 <template>
-  <div class="content">
-    qqq
+  <div class="container">
+    <div class="columns is-centered">
+  <div class="column is-fullheight">
+    <div class="box">
+      <section class="hero is-fullheight">
+        <div class="hero-head">
+            Rooms
+        </div>
+        <hr>
+        <div class="hero-body">
+            <div class="container">
+                room list
+            </div>
+        </div>
+        <hr>
+        <div class="hero-foot">
+            room footer
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="column is-four-fifths">
+    <div class="box">
+      <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container">
+                messages in the selected room
+            </div>
+        </div>
+
+        <div class="hero-foot">
+            message footer
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
   </div>
 </template>
 
