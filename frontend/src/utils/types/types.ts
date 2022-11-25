@@ -2,6 +2,10 @@ export type ApiError = {
     code: number;
     error: {}
 }
+export type UserCredentials = {
+    username: string, 
+    password: string
+}
 
 export type UserProfile = {
     avatar: string;

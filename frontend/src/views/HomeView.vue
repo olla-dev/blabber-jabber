@@ -27,7 +27,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import userModule from '@/store/users';
-import { User } from '@/utils/types';
 
 export default defineComponent({
   name: "HomeView",
@@ -38,17 +37,32 @@ export default defineComponent({
   },
   mounted() {
     this.isLoading = true
+    console.log(this.isAuthenticated);
+    
+    if(this.isAuthenticated == true) {
+      this.goToDashboard();
+    }
   },
   computed: {
     // need annotation
-    isAuthenticated(): boolean {
+    isAuthenticated() {
       return userModule.isAuthenticated
     },
-    user(): User | undefined {
-      return userModule.user
-    }
+  },
+  watch: {
+    isAuthenticated: {
+      handler(newVal, oldVal) {        
+        if (oldVal != newVal && newVal == true) {
+          this.goToDashboard();
+        }
+      },
+      deep: true
+    },
   },
   methods: {
+    goToDashboard() {
+      this.$router.push({ path: '/dashboard' });
+    },
   },
 })
 </script>

@@ -1,6 +1,6 @@
 import { httpClient } from './client'
 import { HttpCode } from './http_codes'
-import { ApiError, User, UserRegister } from '../utils/types'
+import { ApiError, User, UserCredentials, UserRegister } from '../utils/types'
 
 class UserApi {
     async register(user: UserRegister): Promise<User | ApiError > {
@@ -15,12 +15,8 @@ class UserApi {
         }
     }
 
-    async login(username: string, password: string): Promise<User | ApiError> {
-        const formData = {
-            username: username,
-            password: password
-        }
-        const response = await (await httpClient.post('token/login/', formData));
+    async login(credentials: UserCredentials): Promise<User | ApiError> {
+        const response = await (await httpClient.post('token/login/', credentials));
         if(response.status == HttpCode.SUCCESS){
             return response.data;
         } else {

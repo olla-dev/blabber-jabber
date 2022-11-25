@@ -68,30 +68,28 @@
     </nav>
   </template>
 <script lang="ts">
-
-    import userModule from '@/store/users';
-    import { User } from '@/utils/types';
-    export default {
-      name: 'NavHeader',
-      data() {
-        return {
-        }
+  import { defineComponent } from 'vue';
+  import userModule from '@/store/users';
+  import { User } from '@/utils/types';
+  export default defineComponent({
+    name: 'NavHeader',
+    data() {
+      return {
+      }
+    },
+    computed: {
+      // need annotation
+      isAuthenticated(): boolean {
+        return userModule.isAuthenticated
       },
-      computed: {
-        // need annotation
-        isAuthenticated(): boolean {
-          return userModule.isAuthenticated
-        },
-        isLoading(): boolean {
-          return userModule.isLoading
-        },
-        user(): User | undefined {
-          return userModule.user
-        }
+      isLoading(): boolean {
+        return userModule.isLoading
       },
-      methods: {
-      },
-    }
+      user(): User | undefined {
+        return userModule.user
+      }
+    },
+  })
 </script>
 <style lang="scss">
     #app {

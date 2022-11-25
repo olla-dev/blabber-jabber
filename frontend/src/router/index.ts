@@ -1,8 +1,9 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/users/LoginView.vue'
 import SignUpView from '../views/users/SignUpView.vue'
+import ProfileView from '../views/users/ProfileView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
     component: DashboardView
   },
   {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileView
+  },
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting
@@ -36,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 

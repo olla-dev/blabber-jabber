@@ -26,7 +26,7 @@
             <span class="icon has-text-info">
               <i class="fas fa-info-circle"></i>
             </span>
-            <span>Forgot your password? <router-link to="/reset-password">reset it</router-link></span>
+            <span>Forgot your password? <router-link to="/login">reset it</router-link></span>
           </p>
         </div>
         <div class="field">
@@ -40,8 +40,11 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+import userModule from '@/store/users';
+
+export default defineComponent({
   name: 'LoginView',
   data() {
     return {
@@ -50,43 +53,34 @@ export default {
     }
   },
   computed: {
-    loading: {
-      get () {
-        return this.$store.state.users.loading
+    // need annotation
+    isAuthenticated() {
+      return userModule.isAuthenticated
+    },
+  },
+  watch: {
+    isAuthenticated: {
+      handler(newVal, oldVal) {        
+        if (oldVal != newVal && newVal == true) {
+          this.goToDashboard();
+        }
       },
-      set () {
-        this.$store.commit('users/setLoading')
-      }
+      deep: true
     },
-    loggedIn: {
-      get () {
-        return this.$store.state.users.loggedIn
-      }
-    },
-    fetchError: {
-      get () {
-        return this.$store.state.users.fetchError
-      }
-    },
-    fetchErrorCode: {
-      get () {
-        return this.$store.state.users.fetchErrorCode
-      }
-    }
   },
   methods: {
     goToRegister () {
       this.$router.push('/register')
     },
+    goToDashboard() {
+      this.$router.push({ path: '/dashboard' });
+    },
     goToForgotPassword () {
-      this.$router.push('/forgot-password')
+      alert('not implemented');
     },
     submitForm() {
-      this.$store.dispatch('users/login', {
-            username: this.username,
-            password: this.password
-      })
+      userModule.login({ username: this.username, password: this.password })
     }
-  }
-}
+  },
+})
 </script>

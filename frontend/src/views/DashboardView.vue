@@ -59,7 +59,7 @@ export default defineComponent({
   created: function () {
     console.log("Starting connection to WebSocket Server")
     this.websocketConnection.onmessage = function (event: MessageEvent) {
-      const eventJson = JSON.parse(event.data);
+      // const eventJson = JSON.parse(event.data);
     }
 
     this.websocketConnection.onopen = function (event: Event) {
@@ -79,8 +79,6 @@ export default defineComponent({
   methods: {
     loadChatRoom() {
       console.log('selected room:', this.selectedChatRoom?.id);
-
-      const id = `${this.selectedChatRoom?.id}`;
     }
   },
   watch: {
