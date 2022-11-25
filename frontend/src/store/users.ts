@@ -20,8 +20,34 @@ class UserModule extends VuexModule {
   
     @MutationAction
     async login(credentials: UserCredentials) {
-      const response: any = await userApi.login(credentials);
-      if(response.error) {
+      debugger
+      try {  
+        const response: any = await userApi.login(credentials);
+        if(response.error) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('isAuthenticated');
+          
+          return {
+              user: {},
+              authToken: '',
+              isAuthenticated: false,
+              errorCode: response.code,
+              error: response.error
+          }
+        } else {
+          // save token to local storage
+          localStorage.setItem('authToken', response.auth_token);
+          localStorage.setItem('isAuthenticated', 'true');
+
+          return {
+              user: {},
+              authToken: response.auth_token,
+              isAuthenticated: true,
+              errorCode: undefined,
+              error: {}
+          }
+        }
+      } catch (error: any) {
         localStorage.removeItem('authToken');
         localStorage.removeItem('isAuthenticated');
         
@@ -29,19 +55,8 @@ class UserModule extends VuexModule {
             user: {},
             authToken: '',
             isAuthenticated: false,
-            errorCode: response.code,
-            error: response.error
-        }
-      } else {
-        // save token to local storage
-        localStorage.setItem('authToken', response.auth_token);
-        localStorage.setItem('isAuthenticated', 'true');
-
-        return {
-            authToken: response.auth_token,
-            isAuthenticated: true,
-            errorCode: undefined,
-            error: {}
+            errorCode: error.status,
+            error: error.data
         }
       }
     }

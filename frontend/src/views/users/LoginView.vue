@@ -21,6 +21,14 @@
             </span>
           </p>
         </div>
+        <div class="notification is-danger" v-if="loginError()">
+          <button class="delete"></button>
+          <ul>
+            <li v-bind:key="index" v-for="(value, name, index) in error">
+              <strong>{{name}}</strong>: <span v-for="(msg, idx) in value" v-bind:key="idx">{{msg}}</span>
+            </li>
+          </ul>
+        </div>
         <div class="field">
           <p class="control icon-text is-large">
             <span class="icon has-text-info">
@@ -57,6 +65,12 @@ export default defineComponent({
     isAuthenticated() {
       return userModule.isAuthenticated
     },
+    errorCode() {
+      return userModule.errorCode
+    },
+    error() {
+      return userModule.error
+    },
   },
   watch: {
     isAuthenticated: {
@@ -80,6 +94,9 @@ export default defineComponent({
     },
     submitForm() {
       userModule.login({ username: this.username, password: this.password })
+    },
+    loginError() {
+      return Object.keys(userModule.error).length != 0
     }
   },
 })
