@@ -22,7 +22,7 @@
           <div class="columns">
             <div class="column">
                 <p class="control has-icons-left has-icons-right">
-                  <input class="input" type="text" v-model="firstname" placeholder="First name" required>
+                  <input class="input" type="text" v-model="first_name" placeholder="First name" required>
                   <span class="icon is-small is-left">
                     <i class="fas fa-user"></i>
                   </span>
@@ -30,7 +30,7 @@
             </div>
             <div class="column">
                 <p class="control has-icons-left has-icons-right">
-                  <input class="input" type="text" v-model="lastname" placeholder="Last name" required>
+                  <input class="input" type="text" v-model="last_name" placeholder="Last name" required>
                   <span class="icon is-small is-left">
                     <i class="fas fa-user"></i>
                   </span>
@@ -50,22 +50,34 @@
             </div>
             <div class="column">
                 <p class="control has-icons-left">
-                  <input class="input" type="password" v-model="verify_password" placeholder="Confirm Password" required>
+                  <input class="input" type="password" v-model="re_password" placeholder="Confirm Password" required>
                   <span class="icon is-small is-left">
                     <i class="fas fa-lock"></i>
                   </span>
                 </p>
             </div>
           </div>
-          
         </div>
         <div class="field">
           <p class="control icon-text is-large mt-5 mb-5">
             <span class="icon has-text-info">
               <i class="fas fa-info-circle"></i>
             </span>
-            <span>By signing up you implicitly <strong>agree</strong> to the <router-link to="/terms">terms and conditions</router-link></span>
+            <span>By signing up you implicitly <strong>agree</strong> to the <router-link to="/sign-up">terms and conditions</router-link></span>
           </p>
+        </div>
+
+        <div class="notification is-danger" v-if="formError">
+          <button class="delete"></button>
+          {{formError}}
+        </div>
+        <div class="notification is-danger" v-if="registrationError()">
+          <button class="delete"></button>
+          <ul>
+            <li v-bind:key="index" v-for="(value, name, index) in error">
+              <strong>{{name}}</strong>: <span v-for="(msg, idx) in value" v-bind:key="idx">{{msg}}</span>
+            </li>
+          </ul>
         </div>
         <div class="field">
           <p class="control">
@@ -74,33 +86,74 @@
             </button>
           </p>
         </div>
-        </form>
+    </form>
   </div>
 </template>
 
-<script>
-import axios from 'axios'
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+import userModule from '@/store/users';
+
+export default defineComponent({
   name: 'SignUpView',
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
+      re_password: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      formError: ''
     }
   },
+  beforeMount() {
+    // reset the flag that tracks registration status
+    userModule.setRegistrationSuccess(false);
+  },
+  computed: {
+    // need annotation
+    registrationSuccess() {
+      return userModule.registrationSuccess
+    },
+    errorCode() {
+      return userModule.errorCode
+    },
+    error() {
+      return userModule.error
+    },
+  },
+  watch: {
+    registrationSuccess: {
+      handler(newVal, oldVal) {        
+        if (oldVal != newVal && newVal == true) {
+          this.goToLogin();
+        }
+      },
+      deep: true
+    },
+  },
   methods: {
+    goToLogin() {
+      this.$router.push({ path: '/login' });
+    },
     submitForm() {
-      const formData = {
-        username: this.username,
-        password: this.password
+      if (this.password !== this.re_password) {
+        this.formError = 'Password confirmation failed.'
+      } else {
+        userModule.register({
+          username: this.username,
+          password: this.password,
+          re_password: this.re_password,
+          email: this.email,
+          first_name: this.first_name,
+          last_name: this.last_name
+        });
       }
-      axios.post('/api/v1/users/', formData).then(response => {
-        console.log(response)
-        this.$router.push('/login')
-      }).catch(error => {
-        console.error(error)
-      })
+    },
+    registrationError() {
+      return Object.keys(userModule.error).length != 0
     }
   }
-}
+})
 </script>

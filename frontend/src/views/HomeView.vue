@@ -37,7 +37,6 @@ export default defineComponent({
   },
   mounted() {
     this.isLoading = true
-    console.log(this.isAuthenticated);
     
     if(this.isAuthenticated == true) {
       this.goToDashboard();

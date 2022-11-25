@@ -82,9 +82,6 @@
       isAuthenticated(): boolean {
         return userModule.isAuthenticated
       },
-      isLoading(): boolean {
-        return userModule.isLoading
-      },
       user(): User | undefined {
         return userModule.user
       }

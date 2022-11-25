@@ -2,9 +2,10 @@ import {
   Module,
   VuexModule,
   MutationAction,
-  getModule
+  getModule,
+  Mutation
 } from 'vuex-module-decorators'
-import { UserCredentials } from '@/utils/types/index'
+import { UserCredentials, UserRegister } from '@/utils/types/index'
 import { userApi } from '@/api/user.service'
 import store from './index'
   
@@ -13,7 +14,7 @@ class UserModule extends VuexModule {
     user: any = {};
     isAuthenticated = localStorage.getItem('isAuthenticated') ? localStorage.getItem('isAuthenticated') === 'true' : false;;
     authToken = localStorage.getItem('authToken') ? localStorage.getItem('authToken') : '';
-    isLoading = false;
+    registrationSuccess = false;
     errorCode?: number = undefined;
     error = {}
   
@@ -46,6 +47,38 @@ class UserModule extends VuexModule {
     }
 
     @MutationAction
+    async register(user: UserRegister) {
+      try {
+        const response: any = await userApi.register(user);
+        if(response.error) {
+          console.log('Registration failed');
+          return {
+              user: {},
+              registrationSuccess: false,
+              errorCode: response.code,
+              error: response.error
+          }
+        } else {
+          console.log('Registration success');
+          
+          return {
+              user: {...response.data},
+              registrationSuccess: true,
+              errorCode: undefined,
+              error: {}
+          }
+        }
+      } catch (error: any) {
+        return {
+            user: {},
+            registrationSuccess: false,
+            errorCode: error.status,
+            error: error.data
+        }
+      }
+    }
+
+    @MutationAction
     async logout() {
       if(!this.isAuthenticated) {
         throw 'Unauthenticated';
@@ -54,13 +87,17 @@ class UserModule extends VuexModule {
 
       localStorage.removeItem('authToken');
       localStorage.removeItem('isAuthenticated');
-      
+
       return { 
         authToken: '', 
         user: {}, 
-        isAuthenticated: false, 
-        isLoading: false 
+        isAuthenticated: false
       }
+    }
+
+    @Mutation
+    setRegistrationSuccess(value: boolean) {
+      this.registrationSuccess = value;
     }
   }
   
