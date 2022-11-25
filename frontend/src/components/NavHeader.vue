@@ -89,6 +89,24 @@
         return userModule.user
       }
     },
+    methods: {
+      doLogout() {
+        userModule.logout();
+      },
+      goToHome() {
+        this.$router.push({ path: '/' })
+      }
+    },
+    watch: {
+      isAuthenticated: {
+        handler(newVal, oldVal) {        
+          if (oldVal != newVal && newVal == false) {
+            this.goToHome();
+          }
+        },
+        deep: true
+      },
+    },
   })
 </script>
 <style lang="scss">

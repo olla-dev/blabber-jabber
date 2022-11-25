@@ -51,6 +51,10 @@ class UserModule extends VuexModule {
         throw 'Unauthenticated';
       }
       await userApi.logout();
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('isAuthenticated');
+      
       return { 
         authToken: '', 
         user: {}, 
