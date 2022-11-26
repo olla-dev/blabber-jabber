@@ -6,7 +6,7 @@ import {
   getModule
 } from 'vuex-module-decorators'
 import { ChatRoom } from '@/utils/types/index'
-import { chatRoomApi } from '@/api/api.service'
+import { chatRoomApi } from '@/api/chat.service'
 import store from './index'
 
 @Module({ dynamic: true, store, name: 'chat-rooms' })

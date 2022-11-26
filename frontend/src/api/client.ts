@@ -1,6 +1,7 @@
 import axios, {
   AxiosInstance,
-  AxiosResponse
+  AxiosResponse,
+  AxiosRequestConfig
 } from "axios";
 import { HttpCode } from './http_codes'
 
@@ -8,6 +9,15 @@ const headers = {
   "Accept": "application/json",
   "Content-Type": "application/json; charset=utf-8",
 }
+
+const injectToken = (config: AxiosRequestConfig): AxiosRequestConfig => {
+  const token = localStorage.getItem("authToken");
+
+  if (token != null) {
+    config.headers!.Authorization = `Token ${token}`;
+  }
+  return config;
+};
 
 /**
  * this api helper is inspired from: https://altrim.io/posts/axios-http-client-using-typescript
@@ -25,6 +35,8 @@ class HttpClient {
       headers,
       withCredentials: false,
     });
+
+    axiosClient.interceptors.request.use(injectToken, (error) => Promise.reject(error));
 
     axiosClient.interceptors.response.use(
       (response) => response,
@@ -69,15 +81,15 @@ class HttpClient {
   }
 
   async get(url: string) {
-    return await this.client.get(url).then((response: AxiosResponse) => response.data);
+    return await this.client.get(url).then((response: AxiosResponse) => response);
   }
 
   async post<T>(url: string, body: T) {
-    return await this.client.post(url, body).then((response: AxiosResponse) => response.data);
+    return await this.client.post(url, body).then((response: AxiosResponse) => response);
   }
 
   async put<T>(url: string, body: T) {
-    return await this.client.put(url, body).then((response: AxiosResponse) => response.data);
+    return await this.client.put(url, body).then((response: AxiosResponse) => response);
   }
 
   async delete(url: string) {

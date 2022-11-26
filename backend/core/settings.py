@@ -30,8 +30,12 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blabber-ui']
 CORS_ORIGIN_ALLOW_ALL = False
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
-    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 # Application definition
@@ -45,11 +49,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
-    'chat',
     'drf_api_logger',  #  API Call Logger
     'cachalot',
-    'channels'
+    'channels',
+    'djoser',
+    'chat',
+    'users'
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -116,7 +123,7 @@ CACHES = {
     }
 }
 CACHALOT_TIMEOUT=int(CACHE_TTL)
-CACHALOT_ONLY_CACHABLE_APPS=frozenset(('vessels',))
+CACHALOT_ONLY_CACHABLE_APPS=frozenset(('chat', 'users'))
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -135,6 +142,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL': False,
+    'SERIALIZERS': {
+        'current_user': 'users.serializers.UserSerializer',
+    },
+}
 
 
 # Internationalization

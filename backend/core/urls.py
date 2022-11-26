@@ -27,6 +27,8 @@ router.register('chat', views.MessageView, 'message-search')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/', include('djoser.urls')),
+    path('api/v1/', include('djoser.urls.authtoken')),
     path('api/v1/', include(router.urls)),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()
