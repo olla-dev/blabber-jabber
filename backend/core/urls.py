@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_nested import routers
 from chat import views
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -23,12 +24,15 @@ from core.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = routers.SimpleRouter(trailing_slash=True)
-router.register('chat', views.MessageView, 'message-search')
+router.register('rooms', views.RoomListView, 'room-list')
+message_router = routers.NestedSimpleRouter(router, r'rooms', lookup='room')
+message_router.register(r'messages', views.RoomMessageListView, basename='room-messages')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('djoser.urls')),
     path('api/v1/', include('djoser.urls.authtoken')),
     path('api/v1/', include(router.urls)),
+    path('api/v1/', include(message_router.urls)),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()
