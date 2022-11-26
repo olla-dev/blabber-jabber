@@ -123,7 +123,7 @@ CACHES = {
     }
 }
 CACHALOT_TIMEOUT=int(CACHE_TTL)
-CACHALOT_ONLY_CACHABLE_APPS=frozenset(('vessels',))
+CACHALOT_ONLY_CACHABLE_APPS=frozenset(('chat', 'users'))
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -147,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
-        'current_user': 'users.serializers.UserProfileSerializer',
+        'current_user': 'users.serializers.UserSerializer',
     },
 }
 

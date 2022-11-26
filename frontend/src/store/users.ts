@@ -20,7 +20,6 @@ class UserModule extends VuexModule {
   
     @MutationAction
     async login(credentials: UserCredentials) {
-      debugger
       try {  
         const response: any = await userApi.login(credentials);
         if(response.error) {
@@ -57,6 +56,32 @@ class UserModule extends VuexModule {
             isAuthenticated: false,
             errorCode: error.status,
             error: error.data
+        }
+      }
+    }
+
+    @MutationAction
+    async profile() {
+      try {  
+        const response: any = await userApi.profile();
+        if(response.error) {
+          return {
+            user: {},
+            errorCode: response.code,
+            error: response.error
+          }
+        } else {          
+          return {
+              user: response,
+              errorCode: undefined,
+              error: {}
+          }
+        }
+      } catch (error: any) {
+        return {
+          user: {},
+          errorCode: error.status,
+          error: error.data
         }
       }
     }

@@ -36,6 +36,23 @@ class UserApi {
         const response = await httpClient.post('token/logout/', {});
         return response.status == HttpCode.NO_CONTENT;
     }
+
+    /**
+     * Fetches the user profile info
+     * @param user profile
+     * @returns 
+     */
+    async profile(): Promise<User | ApiError > {
+        const response = await httpClient.get('users/me/');
+        if(response.status == HttpCode.SUCCESS){
+            return response.data;
+        } else {
+            return {
+                code: response.status,
+                error: response.data
+            }
+        }
+    }
 }
 
 export const userApi = new UserApi();

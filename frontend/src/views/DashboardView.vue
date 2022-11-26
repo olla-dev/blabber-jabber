@@ -42,33 +42,39 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import chatRoomModule from '@/store/rooms';
+import userModule from '@/store/users';
 import { ChatRoom } from '@/utils/types';
 
 export default defineComponent({
-  name: "HomeView",
+  name: "DashboardView",
   data() {
     return {
       isLoading: false,
-      websocketConnection: new WebSocket(process.env.VUE_APP_WEBSOCKET_URL)
+      websocketConnection: {} as WebSocket
     }
   },
   mounted() {
     this.isLoading = true
-    chatRoomModule.fetchRooms();
-  },
-  created: function () {
+    userModule.profile();
+    // chatRoomModule.fetchRooms();
+
     console.log("Starting connection to WebSocket Server")
+    this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
     this.websocketConnection.onmessage = function (event: MessageEvent) {
       // const eventJson = JSON.parse(event.data);
     }
 
     this.websocketConnection.onopen = function (event: Event) {
-      console.log(event)
       console.log("Successfully connected to the chat websocket server...")
     }
   },
+  beforeUnmount() {
+    this.websocketConnection.close();
+  },
   computed: {
-    // need annotation
+    user() {
+      return userModule.user;
+    },
     rooms(): ChatRoom[] {
       return chatRoomModule.rooms
     },
@@ -82,6 +88,18 @@ export default defineComponent({
     }
   },
   watch: {
+    user: {
+      handler(newVal, oldVal) {
+        if (newVal.profile) {
+          if(newVal!.profile!.is_banned) {
+            alert('Your account is banned');
+            userModule.logout();
+            this.$router.push({ path: '/'})
+          }
+        }
+      },
+      deep: true
+    },
     rooms: {
       handler(oldVal, newVal) {
         if (oldVal != newVal) {

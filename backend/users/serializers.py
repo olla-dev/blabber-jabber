@@ -1,26 +1,12 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .serializers import *
-from .models import ImageModel, Profile
-
-class ImageSerializer(serializers.ModelSerializer):
-    url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ImageModel
-        fields = ('name' ,'url')
-
-    def get_url(self, image):
-        request = self.context.get('request')
-        photo_url = image.img.url
-        return request.build_absolute_uri(photo_url)
-
+from .models import Profile
     
 class UserProfileSerializer(serializers.ModelSerializer):
-    avatar = ImageSerializer(many=False, required=False)
     class Meta:
         model = Profile
         fields = [
-            "avatar",
             "bio",
             "age",
             "is_verified",
@@ -31,3 +17,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "social_youtube",
             "social_blog",
         ]
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'profile', 
+            'username', 
+            'first_name',
+            'last_name',
+            'email'
+        )
