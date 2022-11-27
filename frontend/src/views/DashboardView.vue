@@ -1,5 +1,5 @@
 <template>
-    <div class="container"> 
+    <div class="container">
       <div class="columns  dashboard is-gapless mb-5">
         <div class="column room-list card is-fifth mr-2">
               <aside class="menu pl-2 pr-2">
@@ -96,13 +96,23 @@ export default defineComponent({
       chatRoomModule.setSelectedRoomById(room_id);
     },
     requestJoinChatRoom(event: any) {
-      this.websocketConnection.send(
-        JSON.stringify({
-          'command': 'join',
-          'room': event.room,
-          'user': this.user.id
-        })
-      );
+      debugger
+      var room = this.rooms.find(room => room.name === event.room);
+      if (room) {
+        this.$notify({
+          type: "success",
+          text: "You are already member of this chat room!",
+        });
+        chatRoomModule.setSelectedRoom(room);
+      } else {
+        this.websocketConnection.send(
+          JSON.stringify({
+            'command': 'join',
+            'room': event.room,
+            'user': this.user.id
+          })
+        );
+      }
     },
     refreshRooms() {
       this.isLoading = true
@@ -114,6 +124,7 @@ export default defineComponent({
     },
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
+      let notify = this.$notify
       this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
       this.websocketConnection.onmessage = function (event: MessageEvent) {
         const eventJson = JSON.parse(event.data);
@@ -126,6 +137,16 @@ export default defineComponent({
               chatRoomModule.fetchRooms();
               var room: ChatRoom = eventJson['room'];
               chatRoomModule.setSelectedRoom(room);
+
+              notify({
+                type: "success",
+                text: "Welcome to "+room.name,
+              });
+            } else {
+              notify({
+                type: "danger",
+                text: "An error has occured: "+eventJson["reason"],
+              });
             }
             break;
           default:
