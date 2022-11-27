@@ -1,9 +1,10 @@
 <template>
     <div class="card">
         <header class="card-header">
-            <p class="card-header-title">
-                room_name
-            </p>
+            <div class="card-header-title">
+                <h5 class="title">{{room.name}}</h5>
+                <h6 v-if="room.description" class="subtitle">{{room.description}}</h6>
+            </div>
             <button class="card-header-icon" aria-label="more options">
                 <span class="icon">
                 <i class="fas fa-user-group" aria-hidden="true"></i>
@@ -30,5 +31,13 @@ export default defineComponent({
     components: {
         MessageEditText
     },
+    props: {
+        room: {
+            type: Object,
+            required: true,
+            default: () => ({ id: "", name: "", users: -1 }),
+            // validator: (room) => ["id", "name", "users"].every((key) => key in room),
+        },
+    }
 });
 </script>

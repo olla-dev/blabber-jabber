@@ -1,20 +1,20 @@
 <template>
     <div class="container"> 
-      <div class="columns is-gapless mb-5">
-        <div class="column card is-fifth mr-2">
+      <div class="columns  dashboard is-gapless mb-5">
+        <div class="column room-list card is-fifth mr-2">
               <aside class="menu pl-2 pr-2">
-                <p class="menu-label mt-3">
+                <span class="menu-label mt-5">
                   Joined rooms  
-                </p>
-                <ul class="menu-list">
-                  <li>
-                    <a>
-                      <RoomListItem 
-                        v-for="room in rooms"
-                        v-bind:key="room.id" 
-                        :room="room" />
-                    </a>
-                  </li>
+                  <button class="button is-small" @click="refreshRooms">
+                    <span class="icon is-small is-rounded">
+                      <i class="fa fa-refresh"></i>
+                    </span>
+                  </button>
+                </span>
+                <Loading v-if="isLoading" />
+                <ul v-else class="menu-list scrollable">
+                  <RoomListItem v-for="room in rooms"
+                        v-bind:key="room.id" @load="loadChatRoom" :room="room" />
                 </ul>
                 <p class="menu-label mt-3">
                   Other rooms  
@@ -29,8 +29,8 @@
               </aside>
         </div>
         <div class="column is-four-fifths">
-            <ChatRoomView v-if="selectedChatRoom" />
-            <JoinChatRoom v-else/>
+            <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" />
+            <JoinChatRoom @join="joinChatRoom"  v-else/>
         </div>
       </div>
     </div>
@@ -42,15 +42,17 @@ import chatRoomModule from '@/store/rooms';
 import userModule from '@/store/users';
 import { ChatRoom } from '@/utils/types/types';
 import RoomListItem from '@/components/RoomListItem.vue';
-import JoinChatRoom from '@/components/JointChatRoom.vue';
+import JoinChatRoom from '@/views/rooms/JointChatRoom.vue';
 import ChatRoomView from '@/views/rooms/ChatRoomView.vue';
+import Loading from '@/components/Loading.vue';
 
 export default defineComponent({
   name: "DashboardView",
   components: {
     RoomListItem,
     JoinChatRoom,
-    ChatRoomView
+    ChatRoomView,
+    Loading
   },
   data() {
     return {
@@ -65,15 +67,8 @@ export default defineComponent({
     // fetch chat rooms from REST API
     chatRoomModule.fetchRooms();
 
-    console.log("Starting connection to WebSocket Server")
-    this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
-    this.websocketConnection.onmessage = function (event: MessageEvent) {
-      // const eventJson = JSON.parse(event.data);
-    }
-
-    this.websocketConnection.onopen = function (event: Event) {
-      console.log("Successfully connected to the chat websocket server...")
-    }
+    // init general websockt connection 
+    this.initWebSocketConnection();
   },
   beforeUnmount() {
     this.websocketConnection.close();
@@ -90,8 +85,48 @@ export default defineComponent({
     }
   },
   methods: {
-    loadChatRoom() {
-      console.log('selected room:', this.selectedChatRoom?.id);
+    loadChatRoom(event: any) {
+      var room_id = event.room
+      console.log('selected room:', room_id);
+      chatRoomModule.setSelectedRoomById(room_id);
+    },
+    joinChatRoom(event: any) {
+      this.websocketConnection.send(
+        JSON.stringify({
+          'command': 'join',
+          'room': event.room,
+          'user': this.user.id
+        })
+      );
+    },
+    refreshRooms() {
+      this.isLoading = true
+      chatRoomModule.fetchRooms();
+    },
+    initWebSocketConnection() {
+      console.log("Starting connection to WebSocket Server")
+      this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
+      this.websocketConnection.onmessage = function (event: MessageEvent) {
+        const eventJson = JSON.parse(event.data);
+        
+        switch (eventJson['command']) {
+          case 'join':
+            var result = parseInt(eventJson['result']);
+            if(result == 0) {
+              chatRoomModule.fetchRooms();
+              var room: ChatRoom = eventJson['room'];
+              console.log(room);
+              chatRoomModule.setSelectedRoom(room);
+            }
+            break;
+          default:
+            break;
+        }
+      }
+      
+      this.websocketConnection.onopen = function (event: Event) {
+        console.log("Successfully connected to the chat websocket server...")
+      }
     }
   },
   watch: {
@@ -116,10 +151,9 @@ export default defineComponent({
       deep: true
     },
     selectedChatRoom: {
-      handler(oldVal, newVal) {
-        if (oldVal != newVal) {
+      handler(newVal, oldVal) {
+        if (oldVal != newVal && newVal) {
           this.isLoading = false;
-          this.loadChatRoom();
         }
       },
       deep: true
@@ -130,8 +164,15 @@ export default defineComponent({
 
 
 <style>
-#dashboard {
+.dashboard {
   width: 100%;
   height: calc(100vh - 80px);
+}
+.room-list {
+  overflow: scroll;
+}
+.scrollable {
+  overflow-y: scroll; 
+  width: 100%;
 }
 </style>

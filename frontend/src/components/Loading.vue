@@ -1,5 +1,5 @@
 <template>
-    <div class="is-small ml-2">
+    <div class="is-medium ml-2">
         <progress class="progress is-small is-primary" max="100">15%</progress>
     </div>
 </template>
