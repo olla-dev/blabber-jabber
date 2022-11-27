@@ -4,7 +4,7 @@ import { HttpCode } from './http_codes';
 
 class ChatRoomApi {
     async fetchRooms(): Promise<ChatRoom[] | ApiError> {
-        const response = await httpClient.get('chat/rooms');
+        const response = await httpClient.get('/rooms/');
         if(response.status == HttpCode.SUCCESS){
             return response.data;
         } else {
