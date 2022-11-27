@@ -1,33 +1,58 @@
 <template>
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column">
-        <div class="box">
-          <a v-for="room in rooms" v-bind:key="room.id" class="panel-block is-active">
-          <span class="panel-icon">
-            <i class="fas fa-book" aria-hidden="true"></i>
-          </span>
-          {{room.name}}
-        </a>
+    <div class="container"> 
+      <div class="columns is-gapless mb-5">
+        <div class="column card is-fifth mr-2">
+              <aside class="menu pl-2 pr-2">
+                <p class="menu-label mt-3">
+                  Joined rooms  
+                </p>
+                <ul class="menu-list">
+                  <li>
+                    <a>
+                      <RoomListItem 
+                        v-for="room in rooms"
+                        v-bind:key="room.id" 
+                        :room="room" />
+                    </a>
+                  </li>
+                </ul>
+                <p class="menu-label mt-3">
+                  Other rooms  
+                </p>
+                <ul class="menu-list">
+                  <li>
+                    <a>
+                      todo
+                    </a>
+                  </li>
+                </ul>
+              </aside>
         </div>
-      </div>
-      <div class="column is-four-fifths">
-        <div class="box">
-          <section class="section is-large">
-            <div class="hero-body">
-                <div class="container">
-                    messages in the selected room
-                </div>
+        <div class="column is-four-fifths">
+            <div class="card" v-if="selectedChatRoom">
+              <header class="card-header">
+                <p class="card-header-title">
+                  room_name
+                </p>
+                <button class="card-header-icon" aria-label="more options">
+                  <span class="icon">
+                    <i class="fas fa-user-group" aria-hidden="true"></i>
+                  </span>
+                </button>
+              </header>
+              <div class="card-content">
+                  <section class="section is-large">
+                    aaa
+                  </section>
+              </div>
+              <footer class="card-footer">
+                <MessageEditText class="card-footer-item" />
+              </footer>
             </div>
-
-            <footer class="hero-foot">
-                message footer
-            </footer>
-          </section>
+            <JoinChatRoom v-else/>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -35,9 +60,17 @@ import { defineComponent } from 'vue';
 import chatRoomModule from '@/store/rooms';
 import userModule from '@/store/users';
 import { ChatRoom } from '@/utils/types';
+import MessageEditText  from '@/components/MessageEditText.vue'
+import RoomListItem from '@/components/RoomListItem.vue';
+import JoinChatRoom from '@/components/JointChatRoom.vue'
 
 export default defineComponent({
   name: "DashboardView",
+  components: {
+    MessageEditText,
+    RoomListItem,
+    JoinChatRoom
+},
   data() {
     return {
       isLoading: false,
