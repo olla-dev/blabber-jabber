@@ -5,9 +5,14 @@
               <aside class="menu pl-2 pr-2">
                 <span class="menu-label mt-5">
                   Joined rooms  
-                  <button class="button is-small" @click="refreshRooms">
+                  <button class="button is-small ml-1" @click="refreshRooms">
                     <span class="icon is-small is-rounded">
                       <i class="fa fa-refresh"></i>
+                    </span>
+                  </button>
+                  <button class="button is-small ml-1" @click="showJoinPanel">
+                    <span class="icon is-small is-rounded">
+                      <i class="fa fa-add"></i>
                     </span>
                   </button>
                 </span>
@@ -30,7 +35,7 @@
         </div>
         <div class="column is-four-fifths">
             <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" />
-            <JoinChatRoom @join="joinChatRoom"  v-else/>
+            <JoinChatRoom @join="requestJoinChatRoom"  v-else/>
         </div>
       </div>
     </div>
@@ -90,7 +95,7 @@ export default defineComponent({
       console.log('selected room:', room_id);
       chatRoomModule.setSelectedRoomById(room_id);
     },
-    joinChatRoom(event: any) {
+    requestJoinChatRoom(event: any) {
       this.websocketConnection.send(
         JSON.stringify({
           'command': 'join',
@@ -101,7 +106,11 @@ export default defineComponent({
     },
     refreshRooms() {
       this.isLoading = true
+      chatRoomModule.resetRooms();
       chatRoomModule.fetchRooms();
+    },
+    showJoinPanel() {
+      chatRoomModule.setSelectedRoom(undefined);
     },
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
@@ -112,10 +121,10 @@ export default defineComponent({
         switch (eventJson['command']) {
           case 'join':
             var result = parseInt(eventJson['result']);
+            
             if(result == 0) {
               chatRoomModule.fetchRooms();
               var room: ChatRoom = eventJson['room'];
-              console.log(room);
               chatRoomModule.setSelectedRoom(room);
             }
             break;
@@ -143,7 +152,7 @@ export default defineComponent({
       deep: true
     },
     rooms: {
-      handler(oldVal, newVal) {
+      handler(newVal, oldVal) {
         if (oldVal != newVal) {
           this.isLoading = false;
         }

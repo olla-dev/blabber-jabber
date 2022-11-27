@@ -3,7 +3,6 @@
         <header class="card-header">
             <div class="card-header-title">
                 <h5 class="title">{{room.name}}</h5>
-                <h6 v-if="room.description" class="subtitle">{{room.description}}</h6>
             </div>
             <button class="card-header-icon" aria-label="more options">
                 <span class="icon">

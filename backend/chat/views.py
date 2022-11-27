@@ -25,7 +25,7 @@ class RoomListView(viewsets.ReadOnlyModelViewSet):
     model = ChatRoom
     serializer_class = ChatRoomSerializer
     lookup_field='id'
-    queryset = ChatRoom.objects.prefetch_related('users').all()
+    queryset = ChatRoom.objects.prefetch_related('users').order_by('-created_at').all()
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomMessageListView(viewsets.ModelViewSet):

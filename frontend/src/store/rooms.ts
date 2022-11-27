@@ -30,17 +30,26 @@ class ChatRoomModule extends VuexModule {
   }
 
   @Mutation
-  setSelectedRoom(room: ChatRoom) {
-    this.selectedChatRoom = this.rooms.find(r => r.id === room.id);
-    if (!this.selectedChatRoom) {
-      this.rooms.push(room);
-      this.selectedChatRoom = room;
+  setSelectedRoom(room: ChatRoom | undefined) {
+    if (room) {
+      this.selectedChatRoom = this.rooms.find(r => r.id === room!.id);
+      if (!this.selectedChatRoom) {
+        this.rooms.push(room!);
+        this.selectedChatRoom = room;
+      }
+    } else {
+      this.selectedChatRoom = undefined
     }
   }
   
   @Mutation
   setSelectedRoomById(room_id: number) {
     this.selectedChatRoom = this.rooms.find(r => r.id === room_id);
+  }
+
+  @Mutation
+  resetRooms() {
+    this.rooms = [];
   }
 
   @MutationAction
