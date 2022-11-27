@@ -5,7 +5,7 @@
             <div class="level-item">
                 <a class="panel-block">
                     <span class="panel-icon">
-                        <i class="fas fa-book" aria-hidden="true"></i>
+                        <i class="fas fa-hashtag" aria-hidden="true"></i>
                     </span>
                     {{room.name}}
 

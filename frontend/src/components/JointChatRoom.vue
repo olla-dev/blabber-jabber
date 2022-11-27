@@ -10,7 +10,7 @@
                     <p class="control has-icons-left has-icons-right">
                         <input class="input" type="text" placeholder="Type chat room name">
                         <span class="icon is-small is-left">
-                            <i class="fas fa-envelope"></i>
+                            <i class="fas fa-hashtag"></i>
                         </span>
                     </p>
                 </div>

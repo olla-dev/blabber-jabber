@@ -29,26 +29,7 @@
               </aside>
         </div>
         <div class="column is-four-fifths">
-            <div class="card" v-if="selectedChatRoom">
-              <header class="card-header">
-                <p class="card-header-title">
-                  room_name
-                </p>
-                <button class="card-header-icon" aria-label="more options">
-                  <span class="icon">
-                    <i class="fas fa-user-group" aria-hidden="true"></i>
-                  </span>
-                </button>
-              </header>
-              <div class="card-content">
-                  <section class="section is-large">
-                    aaa
-                  </section>
-              </div>
-              <footer class="card-footer">
-                <MessageEditText class="card-footer-item" />
-              </footer>
-            </div>
+            <ChatRoomView v-if="selectedChatRoom" />
             <JoinChatRoom v-else/>
         </div>
       </div>
@@ -59,18 +40,18 @@
 import { defineComponent } from 'vue';
 import chatRoomModule from '@/store/rooms';
 import userModule from '@/store/users';
-import { ChatRoom } from '@/utils/types';
-import MessageEditText  from '@/components/MessageEditText.vue'
+import { ChatRoom } from '@/utils/types/types';
 import RoomListItem from '@/components/RoomListItem.vue';
-import JoinChatRoom from '@/components/JointChatRoom.vue'
+import JoinChatRoom from '@/components/JointChatRoom.vue';
+import ChatRoomView from '@/views/rooms/ChatRoomView.vue';
 
 export default defineComponent({
   name: "DashboardView",
   components: {
-    MessageEditText,
     RoomListItem,
-    JoinChatRoom
-},
+    JoinChatRoom,
+    ChatRoomView
+  },
   data() {
     return {
       isLoading: false,
