@@ -8,6 +8,9 @@ gunicorn
 pytest
 djoser
 
+# A nice helper to get nested routers 
+drf-nested-routers
+
 # to profile api calls, there is probably a better solution to this using prometheus and grafana?
 drf-api-logger 
 

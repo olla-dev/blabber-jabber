@@ -1,41 +1,32 @@
 <template>
   <div class="container">
     <div class="columns is-centered">
-  <div class="column is-fullheight">
-    <div class="box">
-      <section class="hero is-fullheight">
-        <div class="hero-head">
-            Rooms
+      <div class="column">
+        <div class="box">
+          <a v-for="room in rooms" v-bind:key="room.id" class="panel-block is-active">
+          <span class="panel-icon">
+            <i class="fas fa-book" aria-hidden="true"></i>
+          </span>
+          {{room.name}}
+        </a>
         </div>
-        <hr>
-        <div class="hero-body">
-            <div class="container">
-                room list
+      </div>
+      <div class="column is-four-fifths">
+        <div class="box">
+          <section class="section is-large">
+            <div class="hero-body">
+                <div class="container">
+                    messages in the selected room
+                </div>
             </div>
-        </div>
-        <hr>
-        <div class="hero-foot">
-            room footer
-        </div>
-      </section>
-    </div>
-  </div>
-  <div class="column is-four-fifths">
-    <div class="box">
-      <section class="hero is-fullheight">
-        <div class="hero-body">
-            <div class="container">
-                messages in the selected room
-            </div>
-        </div>
 
-        <div class="hero-foot">
-            message footer
+            <footer class="hero-foot">
+                message footer
+            </footer>
+          </section>
         </div>
-      </section>
+      </div>
     </div>
-  </div>
-</div>
   </div>
 </template>
 
@@ -55,8 +46,10 @@ export default defineComponent({
   },
   mounted() {
     this.isLoading = true
+    // fetch user profile
     userModule.profile();
-    // chatRoomModule.fetchRooms();
+    // fetch chat rooms from REST API
+    chatRoomModule.fetchRooms();
 
     console.log("Starting connection to WebSocket Server")
     this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
