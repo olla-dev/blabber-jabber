@@ -50,8 +50,8 @@ export type Message = {
 export type ChatRoom = {
     id: number,
     name: string,
-    content: string;
     description: string;
     created_at: Date;
     updated_at: Date;
+    users: User[];
 };

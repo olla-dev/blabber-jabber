@@ -1,43 +1,57 @@
 <template>
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column">
-        <div class="box">
-          <a v-for="room in rooms" v-bind:key="room.id" class="panel-block is-active">
-          <span class="panel-icon">
-            <i class="fas fa-book" aria-hidden="true"></i>
-          </span>
-          {{room.name}}
-        </a>
+    <div class="container"> 
+      <div class="columns is-gapless mb-5">
+        <div class="column card is-fifth mr-2">
+              <aside class="menu pl-2 pr-2">
+                <p class="menu-label mt-3">
+                  Joined rooms  
+                </p>
+                <ul class="menu-list">
+                  <li>
+                    <a>
+                      <RoomListItem 
+                        v-for="room in rooms"
+                        v-bind:key="room.id" 
+                        :room="room" />
+                    </a>
+                  </li>
+                </ul>
+                <p class="menu-label mt-3">
+                  Other rooms  
+                </p>
+                <ul class="menu-list">
+                  <li>
+                    <a>
+                      todo
+                    </a>
+                  </li>
+                </ul>
+              </aside>
         </div>
-      </div>
-      <div class="column is-four-fifths">
-        <div class="box">
-          <section class="section is-large">
-            <div class="hero-body">
-                <div class="container">
-                    messages in the selected room
-                </div>
-            </div>
-
-            <footer class="hero-foot">
-                message footer
-            </footer>
-          </section>
+        <div class="column is-four-fifths">
+            <ChatRoomView v-if="selectedChatRoom" />
+            <JoinChatRoom v-else/>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import chatRoomModule from '@/store/rooms';
 import userModule from '@/store/users';
-import { ChatRoom } from '@/utils/types';
+import { ChatRoom } from '@/utils/types/types';
+import RoomListItem from '@/components/RoomListItem.vue';
+import JoinChatRoom from '@/components/JointChatRoom.vue';
+import ChatRoomView from '@/views/rooms/ChatRoomView.vue';
 
 export default defineComponent({
   name: "DashboardView",
+  components: {
+    RoomListItem,
+    JoinChatRoom,
+    ChatRoomView
+  },
   data() {
     return {
       isLoading: false,
