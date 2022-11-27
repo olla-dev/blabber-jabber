@@ -12,6 +12,7 @@ import store from './index'
 @Module({ dynamic: true, store, name: 'chat-rooms' })
 class ChatRoomModule extends VuexModule {
   rooms: ChatRoom[] = [];
+  other_rooms: ChatRoom[] = [];
   selectedChatRoom: ChatRoom | undefined = undefined;
 
   /**
@@ -49,6 +50,7 @@ class ChatRoomModule extends VuexModule {
   @Mutation
   resetRooms() {
     this.rooms = [];
+    this.other_rooms = [];
   }
 
   @MutationAction

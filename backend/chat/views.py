@@ -19,13 +19,26 @@ class MessageView(viewsets.ReadOnlyModelViewSet):
     lookup_field='id'
     queryset = Message.objects.prefetch_related('author').all()
 
-@method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomListView(viewsets.ReadOnlyModelViewSet):
     '''This ViewSet serves all messages info'''
     model = ChatRoom
     serializer_class = ChatRoomSerializer
     lookup_field='id'
-    queryset = ChatRoom.objects.prefetch_related('users').order_by('-created_at').all()
+
+    def get_queryset(self):
+        rooms = ChatRoom.objects.prefetch_related('users').order_by('-created_at').all()
+        my_rooms = []
+        for r in rooms:
+            if r.users.contains(self.request.user):
+                my_rooms.append(r)
+
+        # update cache
+        cached_rooms = cache.get(f"rooms")
+        if not cached_rooms:
+            cache.set(f"rooms", my_rooms, CACHE_TTL)
+            cached_rooms = my_rooms
+        
+        return cached_rooms
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomMessageListView(viewsets.ModelViewSet):
@@ -44,16 +57,16 @@ class RoomMessageListView(viewsets.ModelViewSet):
             filtered_messages = Message.objects.filter(
                 Q(content__icontains = filter)
             )
-            cached_messages = filtered_messages
-            cache.set(f"room_{room_id}_messages", cached_messages, CACHE_TTL)
-            return cached_messages
+            cached_rooms = filtered_messages
+            cache.set(f"room_{room_id}_messages", cached_rooms, CACHE_TTL)
+            return cached_rooms
         else:
-            cached_messages = cache.get(f"room_{room_id}_messages")
-            if not cached_messages:
-                cached_messages = Message.objects.filter(room__id=room_id).order_by('-sent_time_utc')
-                cache.set(f"room_{room_id}_messages", cached_messages, CACHE_TTL)
+            cached_rooms = cache.get(f"room_{room_id}_messages")
+            if not cached_rooms:
+                cached_rooms = Message.objects.filter(room__id=room_id).order_by('-sent_time_utc')
+                cache.set(f"room_{room_id}_messages", cached_rooms, CACHE_TTL)
         
-        return cached_messages
+        return cached_rooms
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomDetailView(viewsets.ModelViewSet):

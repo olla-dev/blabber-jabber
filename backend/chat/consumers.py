@@ -15,7 +15,7 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def join_room(self, room_name, user_id): 
-        room = ChatRoom.objects.filter(name=room_name)
+        room = ChatRoom.objects.filter(name=room_name).first()
         if not room: 
             room = ChatRoom()
             room.name = room_name
@@ -26,6 +26,18 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
         room.save()
         room_json = ChatRoomSerializer(room, many=False).data
         return room_json
+
+    @database_sync_to_async
+    def leave_room(self, room_id, user_id): 
+        room = ChatRoom.objects.filter(id=room_id).first()
+        if room: 
+            user = User.objects.filter(id=user_id).first()
+            room.users.remove(user)
+            room.save()
+            room_json = ChatRoomSerializer(room, many=False).data
+            return room_json
+        else:
+            return None
 
     
     async def connect(self):
@@ -52,7 +64,6 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
         return super().receive_json(content, **kwargs)
     
     async def receive_json(self, content, **kwargs):
-        print(content)
         command = content["command"]
         user_id = content["user"]
 
@@ -79,7 +90,27 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
                 'room': room
             }))
 
+        if command == "leave":
+            # user joins the chat room
+            room_id = content["room"]
+            room = await self.leave_room(room_id, user_id)
+            print(room)
+            if room: 
+                await self.send(text_data=json.dumps({
+                    'command': command,
+                    'result': 0,
+                    'room': room
+                }))
+            else:
+                await self.send(text_data=json.dumps({
+                    "result": -2,
+                    "reason": "Leave room failed"
+                }))
+
         return super().receive_json(content, **kwargs)
+
+    async def chat_room_update(self, event):
+        await self.send_json(content=event)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.model, self.channel_name)

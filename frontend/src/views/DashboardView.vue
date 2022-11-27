@@ -4,7 +4,7 @@
         <div class="column room-list card is-fifth mr-2">
               <aside class="menu pl-2 pr-2">
                 <span class="menu-label mt-5">
-                  Joined rooms  
+                  Joined rooms ({{rooms.length}})
                   <button class="button is-small ml-1" @click="refreshRooms">
                     <span class="icon is-small is-rounded">
                       <i class="fa fa-refresh"></i>
@@ -16,7 +16,7 @@
                     </span>
                   </button>
                 </span>
-                <Loading v-if="isLoading" />
+                <Loading v-if="isLoading && rooms.length > 0" />
                 <ul v-else class="menu-list scrollable">
                   <RoomListItem v-for="room in rooms"
                         v-bind:key="room.id" @load="loadChatRoom" :room="room" />
@@ -34,7 +34,7 @@
               </aside>
         </div>
         <div class="column is-four-fifths">
-            <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" />
+            <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" @leave="requestLeaveChatRoom" />
             <JoinChatRoom @join="requestJoinChatRoom"  v-else/>
         </div>
       </div>
@@ -96,7 +96,6 @@ export default defineComponent({
       chatRoomModule.setSelectedRoomById(room_id);
     },
     requestJoinChatRoom(event: any) {
-      debugger
       var room = this.rooms.find(room => room.name === event.room);
       if (room) {
         this.$notify({
@@ -114,9 +113,19 @@ export default defineComponent({
         );
       }
     },
+    requestLeaveChatRoom(event: any) {
+      console.log('Leave room:', event.room);
+      
+      this.websocketConnection.send(
+        JSON.stringify({
+          'command': 'leave',
+          'room': event.room,
+          'user': this.user.id
+        })
+      );
+    },
     refreshRooms() {
-      this.isLoading = true
-      chatRoomModule.resetRooms();
+      this.isLoading = true;
       chatRoomModule.fetchRooms();
     },
     showJoinPanel() {
@@ -124,24 +133,41 @@ export default defineComponent({
     },
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
-      let notify = this.$notify
+      let notify = this.$notify;
       this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
       this.websocketConnection.onmessage = function (event: MessageEvent) {
         const eventJson = JSON.parse(event.data);
+        const room: ChatRoom = eventJson['room'];
+        const result = parseInt(eventJson['result']);        
         
         switch (eventJson['command']) {
+          case 'chat_room_update':
+            chatRoomModule.fetchRooms();
+            break;
           case 'join':
-            var result = parseInt(eventJson['result']);
-            
             if(result == 0) {
               chatRoomModule.fetchRooms();
-              var room: ChatRoom = eventJson['room'];
               chatRoomModule.setSelectedRoom(room);
 
               notify({
                 type: "success",
                 text: "Welcome to "+room.name,
               });
+            } else {
+              notify({
+                type: "danger",
+                text: "An error has occured: "+eventJson["reason"],
+              });
+            }
+            break;
+          case 'leave':            
+            if(result == 0) {
+              notify({
+                type: "success",
+                text: "You left "+room.name,
+              });
+              chatRoomModule.fetchRooms();
+              chatRoomModule.setSelectedRoom(undefined);
             } else {
               notify({
                 type: "danger",
@@ -174,7 +200,7 @@ export default defineComponent({
     },
     rooms: {
       handler(newVal, oldVal) {
-        if (oldVal != newVal) {
+        if (oldVal.length != newVal.length) {
           this.isLoading = false;
         }
       },
