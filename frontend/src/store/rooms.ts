@@ -15,14 +15,13 @@ class ChatRoomModule extends VuexModule {
   selectedChatRoom: ChatRoom | undefined = undefined;
 
   /**
-   * Returns a specific Vessel by its vessel_id
+   * Returns a specific chat room by id
    */
   get chatRoom() {
-    return (room_id: number) => {
-      this.rooms.find(
-        room => room.id === room_id
-      )
-    };
+    const rooms = this.rooms;
+    return function (room_id: number) {
+      return rooms.find(room => room.id === room_id);
+    }
   }
 
   get getSelectedRoom(): ChatRoom | undefined {
@@ -30,8 +29,26 @@ class ChatRoomModule extends VuexModule {
   }
 
   @Mutation
-  setSelectedRoom(room_id: number) {
-    this.selectedChatRoom = this.rooms.find(room => room.id === room_id);
+  setSelectedRoom(room: ChatRoom | undefined) {
+    if (room) {
+      this.selectedChatRoom = this.rooms.find(r => r.id === room!.id);
+      if (!this.selectedChatRoom) {
+        this.rooms.push(room!);
+        this.selectedChatRoom = room;
+      }
+    } else {
+      this.selectedChatRoom = undefined
+    }
+  }
+  
+  @Mutation
+  setSelectedRoomById(room_id: number) {
+    this.selectedChatRoom = this.rooms.find(r => r.id === room_id);
+  }
+
+  @Mutation
+  resetRooms() {
+    this.rooms = [];
   }
 
   @MutationAction

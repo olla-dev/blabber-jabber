@@ -4,7 +4,7 @@
       <!-- Hero head: At the top -->
       <div class="hero-head m-0">
         <NavHeader />
-        <notifications />
+        <notifications position="bottom right" />
       </div>
       <!-- Hero content: In the middle -->
       <div class="hero-body p-0 m-0">

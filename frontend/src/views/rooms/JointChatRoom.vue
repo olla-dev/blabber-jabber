@@ -8,7 +8,7 @@
                 </div>
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
-                        <input class="input" type="text" placeholder="Type chat room name">
+                        <input class="input" v-model="room_name" type="text" placeholder="Type chat room name">
                         <span class="icon is-small is-left">
                             <i class="fas fa-hashtag"></i>
                         </span>
@@ -16,7 +16,7 @@
                 </div>
                 <div class="field">
                     <p class="control">
-                        <button class="button is-success">
+                        <button :disabled="!room_name" class="button is-success" @click="joinChatRoom()">
                         Join
                         </button>
                     </p>
@@ -30,6 +30,17 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-    name: 'JoinChatRoom'
+    name: 'JoinChatRoom',
+    data() {
+        return {
+            room_name: '',
+            websocketConnection: {} as WebSocket
+        }
+    },
+    methods: {
+        joinChatRoom() {
+            this.$emit('join', { room: this.room_name});
+        }
+    }
 });
 </script>

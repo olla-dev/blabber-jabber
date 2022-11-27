@@ -1,28 +1,26 @@
 <template>
-    <nav class="level p-0">
-        <!-- Left side -->
-        <div class="level-left is-5">
-            <div class="level-item">
-                <a class="panel-block">
-                    <span class="panel-icon">
-                        <i class="fas fa-hashtag" aria-hidden="true"></i>
-                    </span>
-                    {{room.name}}
+    <li>
+        <a>
+            <nav class="level p-0" @click="loadChatRoom">
+                <!-- Left side -->
+                <div class="level-left is-5">
+                    <div class="level-item">
+                        <a class="panel-block">
+                            <span class="panel-icon">
+                                <i class="fas fa-hashtag" aria-hidden="true"></i>
+                            </span>
+                            {{room.name}}
+                        </a>
+                    </div>
+                </div>
 
-                </a>
-            </div>
-        </div>
-
-        <!-- Right side -->
-        <div class="level-right">
-            <span class="tag is-rounded is-danger">11</span>
-                
-        </div>
-    </nav>
-
-
-
-    
+                <!-- Right side -->
+                <div class="level-right">
+                    <span class="tag is-rounded is-danger">11</span>
+                </div>
+            </nav>
+        </a>
+    </li>
 </template>
 
 <script lang="ts">
@@ -37,6 +35,11 @@ export default defineComponent({
             default: () => ({ id: "", name: "", users: -1 }),
             // validator: (room) => ["id", "name", "users"].every((key) => key in room),
         },
+    },
+    methods: {
+        loadChatRoom() {
+            this.$emit('load', { room: this.room.id})
+        }
     }
 });
 </script>
