@@ -18,6 +18,7 @@ export type UserProfile = {
     social_instagram: boolean;
     social_youtube: boolean;
     social_blog: boolean;
+    online?: boolean;
 };
 
 export type UserRegister = {

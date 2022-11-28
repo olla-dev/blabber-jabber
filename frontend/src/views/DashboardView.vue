@@ -2,36 +2,26 @@
     <div class="container">
       <div class="columns  dashboard is-gapless mb-5">
         <div class="column room-list card is-fifth mr-2">
-              <aside class="menu pl-2 pr-2">
-                <span class="menu-label mt-5">
-                  Joined rooms ({{rooms.length}})
-                  <button class="button is-small ml-1" @click="refreshRooms">
-                    <span class="icon is-small is-rounded">
-                      <i class="fa fa-refresh"></i>
-                    </span>
-                  </button>
-                  <button class="button is-small ml-1" @click="showJoinPanel">
-                    <span class="icon is-small is-rounded">
-                      <i class="fa fa-add"></i>
-                    </span>
-                  </button>
+          <aside class="menu pl-2 pr-2">
+            <span class="menu-label mt-5">
+              Joined rooms ({{rooms.length}})
+              <button class="button is-small ml-1" @click="refreshRooms">
+                <span class="icon is-small is-rounded">
+                  <i class="fa fa-refresh"></i>
                 </span>
-                <Loading v-if="isLoading && rooms.length > 0" />
-                <ul v-else class="menu-list scrollable">
-                  <RoomListItem v-for="room in rooms"
-                        v-bind:key="room.id" @load="loadChatRoom" :room="room" />
-                </ul>
-                <p class="menu-label mt-3">
-                  Other rooms  
-                </p>
-                <ul class="menu-list">
-                  <li>
-                    <a>
-                      todo
-                    </a>
-                  </li>
-                </ul>
-              </aside>
+              </button>
+              <button class="button is-small ml-1" @click="showJoinPanel">
+                <span class="icon is-small is-rounded">
+                  <i class="fa fa-add"></i>
+                </span>
+              </button>
+            </span>
+            <Loading v-if="isLoading && rooms.length > 0" />
+            <ul v-else class="menu-list scrollable">
+              <RoomListItem v-for="room in rooms"
+                    v-bind:key="room.id" @load="loadChatRoom" :room="room" />
+            </ul>
+          </aside>
         </div>
         <div class="column is-four-fifths">
             <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" @leave="requestLeaveChatRoom" />
@@ -200,7 +190,7 @@ export default defineComponent({
     },
     rooms: {
       handler(newVal, oldVal) {
-        if (oldVal.length != newVal.length) {
+        if (newVal.length > 0) {
           this.isLoading = false;
         }
       },
@@ -222,7 +212,6 @@ export default defineComponent({
 <style>
 .dashboard {
   width: 100%;
-  height: calc(100vh - 80px);
 }
 .room-list {
   overflow: scroll;
