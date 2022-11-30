@@ -61,13 +61,11 @@ class ChatRoomModule extends VuexModule {
   }
 
   @Mutation
-  setUserStatus(userStatus: UserStatus) {
-    console.log(userStatus.user_id, userStatus.status);
-    
+  setUserStatus(userStatus: UserStatus) {    
     // update user status accross chat rooms
+    // status = online: 1, offline: 0
     this.rooms.map(room => room.users.map(user => {
       if (user.id == userStatus.user_id) {
-        console.log('update user status: ', user.id);
         user.profile.online = userStatus.status;
       }
     }))

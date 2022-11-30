@@ -30,7 +30,7 @@
                     <div class="column">
                         Auto
                     </div>
-                    <div class="column is-one-quarter" v-if="userListShown">
+                    <div class="column is-two-quarters" v-if="userListShown">
                         <UserList :users="room.users" :is-loading="false" />
                     </div>
                 </div>

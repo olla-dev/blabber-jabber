@@ -3,8 +3,7 @@
         <span class="menu-label mt-5 mb-1">
             Members ({{users.length}})
         </span>
-        <Loading v-if="isLoading && users.length > 0" />
-        <ul v-else class="menu-list scrollable">
+        <ul class="menu-list scrollable">
             <UserProfileItem v-for="(user, index) in users"
                 v-bind:key="index" :user="user!" />
         </ul>
@@ -23,11 +22,6 @@ export default defineComponent({
             type: Array,
             required: true,
             default: () => ([{ id: "", username: "", profile: {},  }]),
-        },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: () => (false),
         },
     },
     methods: {

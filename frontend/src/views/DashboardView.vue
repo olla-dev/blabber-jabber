@@ -130,9 +130,6 @@ export default defineComponent({
         const room: ChatRoom = eventJson['room'];
         const result = parseInt(eventJson['result']); 
 
-        console.log(eventJson);
-        
-        
         switch (eventJson['command']) {
           case 'user_status_update':            
             chatRoomModule.setUserStatus({
