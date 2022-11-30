@@ -1,9 +1,10 @@
 import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from asgiref.sync import async_to_sync
+from datetime import datetime
 from channels.db import database_sync_to_async
-from chat.models import ChatRoom
-from chat.serializers import ChatRoomSerializer
+from chat.models import ChatRoom, Message
+from chat.serializers import ChatRoomSerializer, MessageSerializer
 from django.contrib.auth.models import User
 
 class ChatEventConsumer(AsyncJsonWebsocketConsumer):
@@ -50,8 +51,8 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
         )
         await self.accept()
 
-        print("Connected!")
-        self.send_json(
+        print("Connected to main channel!")
+        await self.send_json(
             {
                 "type": "welcome_message",
                 "message": "Hey there! You've successfully connected!",
@@ -68,12 +69,12 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
         user_id = content["user"]
 
         if not command: 
-            self.send_json({
+            await self.send_json({
                 "result": -1,
                 "reason": "No command"
             })
         if not user_id:
-            self.send_json({
+            await self.send_json({
                 "result": -1,
                 "reason": "No user provided"
             })
@@ -94,7 +95,6 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
             # user joins the chat room
             room_id = content["room"]
             room = await self.leave_room(room_id, user_id)
-            print(room)
             if room: 
                 await self.send(text_data=json.dumps({
                     'command': command,
@@ -125,36 +125,100 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     '''this consumer handles specific room events'''
-    def connect(self):
+    
+    @database_sync_to_async
+    def save_message(self, user_id, message): 
+        room = ChatRoom.objects.filter(name=self.room_name).first()
+        user = User.objects.filter(id=user_id).first()
+        if user in room.users:
+            message = Message()
+            message.author = user
+            message.content = message
+            message.room = room
+            message.sent_time_utc = datetime.now()
+            message.save()
+            message_json = MessageSerializer(message, many=False).data
+            return message_json
+        else: 
+            return None
+
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = "chat_%s" % self.room_name
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
+        await self.channel_layer.group_add(
+            self.room_group_name, 
+            self.channel_name
+        )
+        await self.accept()
+
+        print(f"Connected to room {self.room_name}!")
+        self.send_json(
+            {
+                "type": "welcome_message",
+                "message": f"Hey there! welcome to {self.room_name}",
+            }
         )
 
-        self.accept()
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.model, self.channel_name)
+        await self.close()
 
-    def disconnect(self, close_code):
-        # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
-        )
+    async def dispatch_message(self, event):
+        await self.send_json(content=event['data'])
 
-    # Receive message from WebSocket
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+    async def receive_json(self, content, **kwargs):
+        command = content["command"]
+        user_id = content["user"]
 
-        # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "chat_message", "message": message}
-        )
+        if not command: 
+            await self.send_json({
+                "result": -1,
+                "reason": "No command"
+            })
+
+        elif not user_id:
+            await self.send_json({
+                "result": -1,
+                "reason": "No user provided"
+            })
+        else:
+            # handle command
+            if command == "message":
+                message = content["message"]
+
+                # save message to db
+                saved_message = await self.save_message(user_id, message)
+                
+                if saved_message:
+                    # Send message to room group
+                    await self.channel_layer.group_send(
+                        self.room_group_name, {"type": "new_message", "message": saved_message}
+                    )
+                else: 
+                    await self.send_json({
+                        "result": -1,
+                        "reason": "User is not member of this chat room"
+                    })
+
+            if command == "typing":
+                # user joins the chat room
+                user_id = content["user"]
+                
+                await self.channel_layer.group_send(
+                    self.room_group_name, {"type": "user_typing", "user_id": user_id}
+                )
+
+        return super().receive_json(content, **kwargs)
+
+    async def user_typing(self, event):
+        '''Sends updates when a user is typing'''
+        await self.send_json(content=event)
 
     # Receive message from room group
-    def chat_message(self, event):
+    async def new_message(self, event):
         message = event["message"]
 
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=json.dumps({"message": message}))

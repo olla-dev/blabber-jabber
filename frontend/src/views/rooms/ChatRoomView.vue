@@ -28,7 +28,14 @@
             <div class="card-content message-list">
                 <div class="columns">
                     <div class="column">
-                        <MessageList :messages="room.messages" />
+                        <EmptyChatRoom v-if="room.messages.length == 0"/>
+                        <MessageList 
+                            v-else
+                            :messages="room.messages" />
+                        <UserTyping 
+                            v-if="userTyping!.id"
+                            :user="userTyping"
+                            class="bottom-left"  />
                     </div>
                     <div class="column is-two-quarters" v-if="userListShown">
                         <UserList :users="room.users" />
@@ -36,7 +43,10 @@
                 </div>
             </div>
             <footer class="card-footer">
-                <MessageEditText class="card-footer-item" />
+                <MessageEditText 
+                    class="card-footer-item" 
+                    @typing="isTyping"
+                    @send="sendMessage"/>
             </footer>
         </div>
 </template>
@@ -45,24 +55,50 @@
 import { defineComponent } from 'vue';
 import MessageEditText  from '@/components/MessageEditText.vue'
 import UserList from '@/components/UserList.vue'
+import MessageList from '@/components/MessageList.vue'
+import EmptyChatRoom from '@/components/EmptyChatRoom.vue'
+import UserTyping from '@/components/UserTyping.vue'
+import { User } from '@/utils/types';
+import chatRoomModule from '@/store/rooms';
 
 export default defineComponent({
     name: 'ChatRoomView',
     components: {
         MessageEditText,
-        UserList
+        UserList,
+        MessageList,
+        EmptyChatRoom,
+        UserTyping
     },
     data() {
         return {
             userListShown: false,
+            websocketConnection: {} as WebSocket
         }
+    },
+    computed: {
+        userTyping(): User | undefined {
+            return chatRoomModule.userTyping
+        }
+    },
+    mounted() {
+        // init room websockt connection 
+        this.initWebSocketConnection();
+    },
+    beforeUnmount() {
+        this.websocketConnection.close();
     },
     props: {
         room: {
             type: Object,
             required: true,
-            default: () => ({ id: "", name: "", users: -1 }),
-            // validator: (room) => ["id", "name", "users"].every((key) => key in room),
+            default: () => ({ id: "", name: "", users: -1, messages: [] }),
+            // validator: (room) => ["id", "name", "users", "messages"].every((key) => key in room),
+        },
+        user: {
+            type: Object,
+            required: true,
+            default: () => ({ id: "", username: "", profile: {},  }),
         },
     },
     methods: {
@@ -71,8 +107,54 @@ export default defineComponent({
         },
         showHideUserList() {
             this.userListShown = !this.userListShown;
+        },
+        isTyping() {
+            // broadcast that current user is typing                        
+            this.websocketConnection.send(
+                JSON.stringify({
+                    'command': 'typing',
+                    'user': this.$props.user.id
+                })
+            );
+        },
+        sendMessage(event: any) {
+            const message = event.message;
+      
+            this.websocketConnection.send(
+                JSON.stringify({
+                    'command': 'message',
+                    'message': message,
+                    'user': this.$props.user.id,
+                    'room_id': this.$props.room.id
+                })
+            );
+        },
+        initWebSocketConnection() {
+            console.log("Starting connection to Chat room channel")
+            const room = this.$props.room;
+            let userTyping = this.userTyping;
+
+            this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL+'/room/'+this.room.name+'/');
+            this.websocketConnection.onmessage = function (event: MessageEvent) {
+                const eventJson = JSON.parse(event.data);
+
+                switch (eventJson['type']) { 
+                    case 'user_typing': {
+                        const user_id = eventJson['user_id']                        
+                        chatRoomModule.setUserTyping(user_id)                       
+                        break;
+                    }
+                    case 'new_message':
+                        break;
+                    default: 
+                        break;
+                }
+            }
+            this.websocketConnection.onopen = function (event: Event) {
+                console.log("Successfully connected to the chat room channel...")
+            }
         }
-    }
+    },
 });
 </script>
 
@@ -83,5 +165,15 @@ export default defineComponent({
 .message-list {
   overflow: scroll;
   height: 80%;
+}
+.bottom-left {
+    margin: 5px;
+    height: 30px;
+    padding: 5px;
+    min-width: 35%;
+    text-overflow: clip;
+    position: absolute;
+    bottom: 80px;
+    left: 0;
 }
 </style>

@@ -10,7 +10,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import chatRoomModule from '@/store/rooms';
-import { Message } from '@/utils/types';
 
 import MessageItem from './MessageItem.vue';
 
@@ -33,7 +32,7 @@ export default defineComponent({
     methods: {
         getMessageAuthor(message: any) {
             const chatRoom = chatRoomModule.chatRoom(message.chat_room_id);
-            return chatRoomModule.user(chatRoom!, message.author_id);
+            return chatRoom!.users.filter(user => user.id == message.author_id);
         }
     }
 });
