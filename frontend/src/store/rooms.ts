@@ -26,6 +26,12 @@ class ChatRoomModule extends VuexModule {
     }
   }
 
+  get user() {
+    return function (room: ChatRoom, author_id: number) {
+      return room.users.find(user => user.id === author_id);
+    }
+  }
+
   get getSelectedRoom(): ChatRoom | undefined {
     return this.selectedChatRoom;
   }

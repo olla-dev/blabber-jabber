@@ -28,10 +28,10 @@
             <div class="card-content message-list">
                 <div class="columns">
                     <div class="column">
-                        Auto
+                        <MessageList :messages="room.messages" />
                     </div>
                     <div class="column is-two-quarters" v-if="userListShown">
-                        <UserList :users="room.users" :is-loading="false" />
+                        <UserList :users="room.users" />
                     </div>
                 </div>
             </div>

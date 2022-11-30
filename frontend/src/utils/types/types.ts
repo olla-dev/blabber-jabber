@@ -43,6 +43,7 @@ export type User = {
 };
 
 export type Message = {
+    id: number,
     chat_room_id: number,
     author_id: number,
     content: string;
