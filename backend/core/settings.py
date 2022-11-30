@@ -147,6 +147,8 @@ AUTH_PASSWORD_VALIDATORS = [
 DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
+        'user_create': 'users.serializers.UserCreateSerializer',
+        'user': 'users.serializers.UserSerializer',
         'current_user': 'users.serializers.UserSerializer',
     },
 }

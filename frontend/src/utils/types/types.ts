@@ -6,6 +6,10 @@ export type UserCredentials = {
     username: string, 
     password: string
 }
+export type UserStatus = {
+    user_id: number, 
+    status: number
+}
 
 export type UserProfile = {
     avatar: string;
@@ -14,10 +18,11 @@ export type UserProfile = {
     is_verified: boolean;
     is_banned: boolean;
     is_premium: boolean;
-    social_facebook: boolean;
-    social_instagram: boolean;
-    social_youtube: boolean;
-    social_blog: boolean;
+    social_facebook: string;
+    social_instagram: string;
+    social_youtube: string;
+    social_blog: string;
+    online?: number;
 };
 
 export type UserRegister = {

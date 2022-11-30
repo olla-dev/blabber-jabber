@@ -112,6 +112,10 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
     async def chat_room_update(self, event):
         await self.send_json(content=event)
 
+    async def user_status_update(self, event):
+        '''Sends updates when a user logs in or logs out'''
+        await self.send_json(content=event)
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.model, self.channel_name)
         await self.close()

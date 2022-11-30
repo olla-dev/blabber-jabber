@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <section class="hero">
+    <div class="container pb-20 pt-1">
       <!-- Hero head: At the top -->
       <div class="hero-head m-0">
         <NavHeader />
@@ -10,8 +9,7 @@
       <div class="hero-body p-0 m-0">
         <router-view/>
       </div>
-    </section>
-  </div>
+    </div>
 </template>
 
 <script lang="ts">

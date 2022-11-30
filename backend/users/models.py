@@ -11,6 +11,8 @@ class Profile(models.Model):
     bio = models.TextField()
     age = models.IntegerField(null=True, blank=True)
 
+    online = models.BooleanField(default=False)
+
     is_verified = models.BooleanField(default=False, editable=False)
     is_banned = models.BooleanField(default=False, editable=False)
     is_premium = models.BooleanField(default=False, editable=False)
