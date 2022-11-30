@@ -128,9 +128,18 @@ export default defineComponent({
       this.websocketConnection.onmessage = function (event: MessageEvent) {
         const eventJson = JSON.parse(event.data);
         const room: ChatRoom = eventJson['room'];
-        const result = parseInt(eventJson['result']);        
+        const result = parseInt(eventJson['result']); 
+
+        console.log(eventJson);
+        
         
         switch (eventJson['command']) {
+          case 'user_status_update':            
+            chatRoomModule.setUserStatus({
+              user_id: eventJson['user'], 
+              status: JSON.parse(eventJson['online'])
+            });
+            break;
           case 'chat_room_update':
             chatRoomModule.fetchRooms();
             break;

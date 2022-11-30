@@ -3,9 +3,10 @@ import {
   VuexModule,
   MutationAction,
   Mutation,
-  getModule
+  getModule,
+  Action
 } from 'vuex-module-decorators'
-import { ChatRoom } from '@/utils/types/index'
+import { ChatRoom, UserStatus } from '@/utils/types/index'
 import { chatRoomApi } from '@/api/chat.service'
 import store from './index'
 
@@ -57,6 +58,19 @@ class ChatRoomModule extends VuexModule {
   async fetchRooms() {
     const rooms = await chatRoomApi.fetchRooms();
     return { rooms }
+  }
+
+  @Mutation
+  setUserStatus(userStatus: UserStatus) {
+    console.log(userStatus.user_id, userStatus.status);
+    
+    // update user status accross chat rooms
+    this.rooms.map(room => room.users.map(user => {
+      if (user.id == userStatus.user_id) {
+        console.log('update user status: ', user.id);
+        user.profile.online = userStatus.status;
+      }
+    }))
   }
 }
 

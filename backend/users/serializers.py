@@ -10,6 +10,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             "bio",
             "age",
+            "online",
             "is_verified",
             "is_banned",
             "is_premium",
