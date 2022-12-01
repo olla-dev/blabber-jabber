@@ -12,5 +12,5 @@ You are asked to write a web chat application. Choose the technologies you want.
 
 - [x] User can signup.
 - [x] User can login.
-* An hosted version of your app
-* Admin of a chat room (first user) can kick other users
+- [] An hosted version of your app 
+- [] Admin of a chat room (first user) can kick other users
