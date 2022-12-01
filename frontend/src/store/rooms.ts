@@ -67,9 +67,20 @@ class ChatRoomModule extends VuexModule {
   }
 
   @Mutation
-  roomNotification(room_id: number) {
+  roomNotification(updateEvent: any) {
+    const room_id = updateEvent['room_id'];
+    const message = updateEvent['message'];
+
     this.rooms.forEach(room => {
       if(room.id == room_id) {
+        // this ugly, but i didn't find a way to use this aliases to call newMessage mutation
+        const messages = room!.messages;
+        const old_message = messages.find(m => m.id == message.id)
+        if(!old_message) {
+          console.log('new message', room.id);
+          room.messages =  [...messages, message];
+          room.hasNewMessages = true;
+        }
         room.hasNewMessages = true;
       }
     })

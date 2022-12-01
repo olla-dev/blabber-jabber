@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
+from chat.serializers import MessageSerializer
 
 from .models import ChatRoom, Message
 
@@ -43,5 +44,6 @@ def save_message(sender, instance, **kwargs):
     async_to_sync(channel_layer.group_send)('chat', {
         'type': 'chat_room_update',
         'command': 'chat_room_update',
-        'room_id': instance.room.id
+        'room_id': instance.room.id,
+        'message': MessageSerializer(instance, many=False).data
     })

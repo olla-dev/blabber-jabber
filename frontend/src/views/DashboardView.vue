@@ -139,7 +139,7 @@ export default defineComponent({
             if(!room_id) {
               chatRoomModule.fetchRooms();
             } else {
-              chatRoomModule.roomNotification(room_id);
+              chatRoomModule.roomNotification(eventJson);
             }
             break;
           }
