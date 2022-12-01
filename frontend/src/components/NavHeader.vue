@@ -36,6 +36,11 @@
         </div>
         <div class="navbar-end">
           <div class="navbar-item">
+              <div v-if="isAuthenticated" class="is-info">
+                <strong>{{user?.first_name}} {{user?.last_name}}</strong>
+              </div>
+          </div>
+          <div class="navbar-item">
             <div class="buttons">
               <router-link v-if="!isAuthenticated" to="/login" class="button is-info">
                 <span class="icon">
