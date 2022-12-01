@@ -4,7 +4,6 @@ import {
   MutationAction,
   Mutation,
   getModule,
-  Action
 } from 'vuex-module-decorators'
 import { ChatRoom, Message, User, UserStatus } from '@/utils/types/index'
 import { chatRoomApi } from '@/api/chat.service'
@@ -55,15 +54,32 @@ class ChatRoomModule extends VuexModule {
 
   @Mutation
   newMessage(message: Message) {
-    if (this.selectedChatRoom) {
-      const messages = this.selectedChatRoom!.messages;
-      this.selectedChatRoom.messages =  [...messages, message];
+    const room = this.rooms.find(r => r.id == message.chat_room_id);
+    if (room) {
+      const messages = room!.messages;
+      const old_message = messages.find(m => m.id == message.id)
+      if(!old_message) {
+        console.log('new message', room.id);
+        room.messages =  [...messages, message];
+        room.hasNewMessages = true;
+      }
     }    
+  }
+
+  @Mutation
+  roomNotification(room_id: number) {
+    this.rooms.forEach(room => {
+      if(room.id == room_id) {
+        room.hasNewMessages = true;
+      }
+    })
+    return this.rooms
   }
   
   @Mutation
-  setSelectedRoomById(room_id: number) {
-    this.selectedChatRoom = this.rooms.find(r => r.id === room_id);
+  setSelectedRoomById(room_id: number) {    
+    this.selectedChatRoom = this.rooms.find(r => r.id === room_id);    
+    this.selectedChatRoom!.hasNewMessages = false;
   }
 
   @Mutation

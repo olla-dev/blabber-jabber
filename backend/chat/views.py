@@ -11,7 +11,6 @@ from .models import Message, ChatRoom
 
 from core.settings import CACHE_TTL
 
-@method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class MessageView(viewsets.ReadOnlyModelViewSet):
     '''This ViewSet serves all messages info accross all channels'''
     model = Message
@@ -23,6 +22,7 @@ class RoomListView(viewsets.ReadOnlyModelViewSet):
     '''This ViewSet serves all messages info'''
     model = ChatRoom
     serializer_class = ChatRoomSerializer
+    pagination_class = ResultPagination
     lookup_field='id'
 
     def get_queryset(self):
@@ -31,16 +31,8 @@ class RoomListView(viewsets.ReadOnlyModelViewSet):
         for r in rooms:
             if r.users.contains(self.request.user):
                 my_rooms.append(r)
+        return my_rooms
 
-        # update cache
-        cached_rooms = cache.get(f"rooms")
-        if not cached_rooms:
-            cache.set(f"rooms", my_rooms, CACHE_TTL)
-            cached_rooms = my_rooms
-        
-        return cached_rooms
-
-@method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomMessageListView(viewsets.ModelViewSet):
     '''This ViewSet serves a room's latest 10 messages'''
     model = Message
@@ -50,23 +42,7 @@ class RoomMessageListView(viewsets.ModelViewSet):
     def get_queryset(self):
         # get room id from url
         room_id = self.kwargs['room_id']
-        
-        # check for query filter
-        filter = self.request.query_params.get('filter')
-        if filter is not None:
-            filtered_messages = Message.objects.filter(
-                Q(content__icontains = filter)
-            )
-            cached_room_messages = filtered_messages
-            cache.set(f"room_{room_id}_messages", cached_room_messages, CACHE_TTL)
-            return cached_room_messages
-        else:
-            cached_room_messages = cache.get(f"room_{room_id}_messages")
-            if not cached_room_messages:
-                cached_room_messages = Message.objects.filter(room__id=room_id).order_by('sent_time_utc')[:10]
-                cache.set(f"room_{room_id}_messages", cached_room_messages, CACHE_TTL)
-        
-        return cached_room_messages
+        return Message.objects.filter(room__id=room_id).order_by('sent_time_utc')[:10]
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomDetailView(viewsets.ModelViewSet):
@@ -97,7 +73,7 @@ class RoomDetailView(viewsets.ModelViewSet):
             if ChatRoom.objects.filter(id=room_id).exists():
                 instance = ChatRoom.objects.get(id=room_id)
                 instance.delete()
-                cache.remove(f"room_{room_id}_messages")
+                cache.remove(f"rooms")
             else: 
                 return Response(status=status.HTTP_404_NOT_FOUND)
         except Http404:

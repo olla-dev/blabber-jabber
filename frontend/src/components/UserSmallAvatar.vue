@@ -2,7 +2,8 @@
     <div class='icon-container'>
         <!-- for the moment avatars are not handled in the backend-->
         <!-- so I'm just placing a random placeholder image -->
-        <img :src="user.profile!.avatar.img_url" />
+        <img v-if="user.profile!.avatar" :src="user.profile!.avatar!.img_url" />
+        <img v-else src="../assets/user.jpeg" />
         <div v-if="user.profile!.online" class='status-circle logged-in' />
         <div v-if="!user.profile!.online" class='status-circle logged-out' />
     </div>

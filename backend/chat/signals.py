@@ -36,8 +36,12 @@ def cart_update_total_when_item_added(sender, instance, action, *args, **kwargs)
 
 @receiver(post_save, sender=Message)
 def save_message(sender, instance, **kwargs):
+    # unset cache on new message
+    cache.delete(f"room_{instance.id}_messages")
+
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)('chat', {
         'type': 'chat_room_update',
-        'room': instance.room.id
+        'command': 'chat_room_update',
+        'room_id': instance.room.id
     })
