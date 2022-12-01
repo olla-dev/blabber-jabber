@@ -8,6 +8,7 @@ import {
 import { UserCredentials, UserRegister } from '@/utils/types/index'
 import { userApi } from '@/api/user.service'
 import store from './index'
+import { HttpCode } from '@/api/http_codes';
   
 @Module({ dynamic: true, store, name: 'users'})
 class UserModule extends VuexModule {
@@ -78,6 +79,11 @@ class UserModule extends VuexModule {
           }
         }
       } catch (error: any) {
+        if(error.status == HttpCode.UNAUTHORIZED) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('isAuthenticated');
+        }
+
         return {
           user: {},
           errorCode: error.status,
