@@ -8,7 +8,9 @@
                 </div>
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
-                        <input class="input" v-model="room_name" type="text" placeholder="Type chat room name">
+                        <input 
+                            v-on:keyup.enter="joinChatRoom"
+                            class="input" v-model="room_name" type="text" placeholder="Type chat room name">
                         <span class="icon is-small is-left">
                             <i class="fas fa-hashtag"></i>
                         </span>
@@ -39,7 +41,8 @@ export default defineComponent({
     },
     methods: {
         joinChatRoom() {
-            this.$emit('join', { room: this.room_name});
+            if(this.room_name != '')
+                this.$emit('join', { room: this.room_name});
         }
     }
 });

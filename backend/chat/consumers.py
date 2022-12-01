@@ -1,11 +1,13 @@
 import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from asgiref.sync import async_to_sync
+from django.core.cache import cache
 from datetime import datetime
 from channels.db import database_sync_to_async
 from chat.models import ChatRoom, Message
 from chat.serializers import ChatRoomSerializer, MessageSerializer
 from django.contrib.auth.models import User
+
+from core.settings import CACHE_TTL
 
 class ChatEventConsumer(AsyncJsonWebsocketConsumer):
     '''This consumer handles general user events'''
@@ -13,20 +15,24 @@ class ChatEventConsumer(AsyncJsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.room_name = None
+        self.model = 'chat'
 
     @database_sync_to_async
     def join_room(self, room_name, user_id): 
         room = ChatRoom.objects.filter(name=room_name).first()
+        user = User.objects.filter(id=user_id).first()
+        
         if not room: 
             room = ChatRoom()
             room.name = room_name
             room.save()
-        
-        user = User.objects.filter(id=user_id).first()
-        room.users.add(user)
-        room.save()
-        room_json = ChatRoomSerializer(room, many=False).data
-        return room_json
+
+        if not room.users.contains(user):
+            room.users.add(user)
+            room.save()
+            room_json = ChatRoomSerializer(room, many=False).data
+            return room_json
+        return None
 
     @database_sync_to_async
     def leave_room(self, room_id, user_id): 
@@ -138,6 +144,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             message.sent_time_utc = datetime.now()
             message.save()
             message_json = MessageSerializer(message, many=False).data
+            
+            # update cache
+            cached_room_messages = cache.get(f"room_{room.id}_messages")
+            if cached_room_messages:
+                cached_room_messages.append(message)
+                cache.set(f"room_{room.id}_messages", cached_room_messages, CACHE_TTL)
+
+            print(message_json)
             return message_json
         else: 
             return None
@@ -162,7 +176,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.model, self.channel_name)
+        await self.channel_layer.group_discard(self.room_name, self.channel_name)
         await self.close()
 
     async def dispatch_message(self, event):

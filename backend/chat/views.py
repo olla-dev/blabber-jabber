@@ -57,16 +57,16 @@ class RoomMessageListView(viewsets.ModelViewSet):
             filtered_messages = Message.objects.filter(
                 Q(content__icontains = filter)
             )
-            cached_rooms = filtered_messages
-            cache.set(f"room_{room_id}_messages", cached_rooms, CACHE_TTL)
-            return cached_rooms
+            cached_room_messages = filtered_messages
+            cache.set(f"room_{room_id}_messages", cached_room_messages, CACHE_TTL)
+            return cached_room_messages
         else:
-            cached_rooms = cache.get(f"room_{room_id}_messages")
-            if not cached_rooms:
-                cached_rooms = Message.objects.filter(room__id=room_id).order_by('-sent_time_utc')
-                cache.set(f"room_{room_id}_messages", cached_rooms, CACHE_TTL)
+            cached_room_messages = cache.get(f"room_{room_id}_messages")
+            if not cached_room_messages:
+                cached_room_messages = Message.objects.filter(room__id=room_id).order_by('sent_time_utc')[:10]
+                cache.set(f"room_{room_id}_messages", cached_room_messages, CACHE_TTL)
         
-        return cached_rooms
+        return cached_room_messages
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomDetailView(viewsets.ModelViewSet):
