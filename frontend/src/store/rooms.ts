@@ -6,7 +6,7 @@ import {
   getModule,
   Action
 } from 'vuex-module-decorators'
-import { ChatRoom, User, UserStatus } from '@/utils/types/index'
+import { ChatRoom, Message, User, UserStatus } from '@/utils/types/index'
 import { chatRoomApi } from '@/api/chat.service'
 import store from './index'
 
@@ -50,6 +50,15 @@ class ChatRoomModule extends VuexModule {
     setTimeout(() => {
         this.userTyping = {} as User;
     }, 3000);
+  }
+
+
+  @Mutation
+  newMessage(message: Message) {
+    if (this.selectedChatRoom) {
+      const messages = this.selectedChatRoom!.messages;
+      this.selectedChatRoom.messages =  [...messages, message];
+    }    
   }
   
   @Mutation

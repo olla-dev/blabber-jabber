@@ -47,6 +47,3 @@ class Message(models.Model):
             models.Index(fields=['sent_time_utc', 'id'], name='sent_time_utc_idx')
         ]
         ordering = ['-sent_time_utc']
-    
-    def __str__(self):
-        return "Message %s (%s): %s" % (self.user.id, self.sent_time_utc, self.content)

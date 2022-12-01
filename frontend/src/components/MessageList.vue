@@ -1,10 +1,8 @@
 <template>
-    <aside class="menu pl-2 pr-2 box">
-        <ul class="menu-list scrollable">
-            <MessageItem v-for="(message, index) in messages"
+    <div class="m-0">
+        <MessageItem v-for="(message, index) in messages"
                 v-bind:key="index" :message="message!" :user="getMessageAuthor(message!)" />
-        </ul>
-    </aside>
+    </div>
 </template>
 
 <script lang="ts">
@@ -32,7 +30,7 @@ export default defineComponent({
     methods: {
         getMessageAuthor(message: any) {
             const chatRoom = chatRoomModule.chatRoom(message.chat_room_id);
-            return chatRoom!.users.filter(user => user.id == message.author_id);
+            return chatRoom!.users.find(user => user.id == message.author_id);
         }
     }
 });

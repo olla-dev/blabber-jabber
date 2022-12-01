@@ -127,13 +127,13 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     '''this consumer handles specific room events'''
     
     @database_sync_to_async
-    def save_message(self, user_id, message): 
+    def save_message(self, user_id, content): 
         room = ChatRoom.objects.filter(name=self.room_name).first()
         user = User.objects.filter(id=user_id).first()
-        if user in room.users:
+        if room.users.contains(user):
             message = Message()
             message.author = user
-            message.content = message
+            message.content = content
             message.room = room
             message.sent_time_utc = datetime.now()
             message.save()
@@ -218,7 +218,5 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     # Receive message from room group
     async def new_message(self, event):
-        message = event["message"]
-
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send_json(content=event)

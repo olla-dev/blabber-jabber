@@ -3,8 +3,8 @@
             <nav class="navbar card-header" role="navigation" aria-label="main navigation">
                 <div class="navbar-menu">
                     <div class="navbar-start">
-                        <div class="navbar-item">
-                            # <b>{{room.name}}</b>
+                        <div class="navbar-item title">
+                            <h2># <b>{{room.name}}</b></h2>
                         </div>
                     </div>
                     <div class="navbar-end">
@@ -25,9 +25,9 @@
                     </div>
                 </div>
             </nav>
-            <div class="card-content message-list">
+            <div class="card-content message-list" ref="messageContainer">
                 <div class="columns">
-                    <div class="column">
+                    <div class="column p-0" v-if="room">
                         <EmptyChatRoom v-if="room.messages.length == 0"/>
                         <MessageList 
                             v-else
@@ -37,7 +37,7 @@
                             :user="userTyping"
                             class="bottom-left"  />
                     </div>
-                    <div class="column is-two-quarters" v-if="userListShown">
+                    <div class="column is-two-quarters top-right" v-if="userListShown">
                         <UserList :users="room.users" />
                     </div>
                 </div>
@@ -78,8 +78,8 @@ export default defineComponent({
     },
     computed: {
         userTyping(): User | undefined {
-            return chatRoomModule.userTyping
-        }
+            return chatRoomModule.userTyping;
+        },
     },
     mounted() {
         // init room websockt connection 
@@ -131,21 +131,21 @@ export default defineComponent({
         },
         initWebSocketConnection() {
             console.log("Starting connection to Chat room channel")
-            const room = this.$props.room;
-            let userTyping = this.userTyping;
-
             this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL+'/room/'+this.room.name+'/');
             this.websocketConnection.onmessage = function (event: MessageEvent) {
                 const eventJson = JSON.parse(event.data);
-
+                
                 switch (eventJson['type']) { 
                     case 'user_typing': {
                         const user_id = eventJson['user_id']                        
                         chatRoomModule.setUserTyping(user_id)                       
                         break;
                     }
-                    case 'new_message':
+                    case 'new_message': {
+                        const message = eventJson['message'];                       
+                        chatRoomModule.newMessage(message)                       
                         break;
+                    }
                     default: 
                         break;
                 }
@@ -155,6 +155,11 @@ export default defineComponent({
             }
         }
     },
+    watch: { 
+        room: function(newVal, oldVal) { 
+            this.$el.scrollTop = this.$el.lastElementChild.offsetTop;
+        }
+    }
 });
 </script>
 
@@ -175,5 +180,14 @@ export default defineComponent({
     position: absolute;
     bottom: 80px;
     left: 0;
+}
+.top-right {
+    margin: 5px;
+    padding: 5px;
+    min-width: 35%;
+    text-overflow: clip;
+    position: absolute;
+    top: 80px;
+    right: 15px;
 }
 </style>

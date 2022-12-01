@@ -60,4 +60,5 @@ export type ChatRoom = {
     created_at: Date;
     updated_at: Date;
     users: User[];
+    messages: Message[];
 };

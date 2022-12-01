@@ -1,20 +1,20 @@
 <template>
-    <div class="notification">
-    <article class="media p-2">
-        <figure class="media-left">
-            <UserSmallAvatar class="media-left" :user="user" />
-        </figure>
-        <div class="media-content">
-            <div class="content">
-            <p>
-                <b>{{user.first_name}} {{user.last_name}}</b> <small>{{formatDate(message.sent_time_utc)}}</small>
-                <br>
-                {{message.content}}
-            </p>
+    <div class="m-1">
+        <article class="media notification p-2">
+            <figure class="media-left is-centered">
+                <UserSmallAvatar class="media-left" :user="user" />
+            </figure>
+            <div class="media-content">
+                <div class="content">
+                <p>
+                    <b>{{user.first_name}} {{user.last_name}}</b> <small>{{formatDate(message.sent_time_utc)}}</small>
+                    <br>
+                    {{message.content}}
+                </p>
+                </div>
             </div>
-        </div>
-    </article>
-</div>
+        </article>
+    </div>
 </template>
 
 <script lang="ts">

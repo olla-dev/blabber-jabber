@@ -22,8 +22,10 @@ export default defineComponent({
     },
     methods: {
         sendMessage() {
-            this.$emit('send', { message: this.message});
-            this.message = '';
+            if(this.message != "") {
+                this.$emit('send', { message: this.message});
+                this.message = '';
+            }    
         },
         isTyping() {
             this.$emit('typing');
