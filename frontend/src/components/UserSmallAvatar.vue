@@ -2,7 +2,7 @@
     <div class='icon-container'>
         <!-- for the moment avatars are not handled in the backend-->
         <!-- so I'm just placing a random placeholder image -->
-        <img src="https://picsum.photos/200/300" />
+        <img :src="user.profile!.avatar.img_url" />
         <div v-if="user.profile!.online" class='status-circle logged-in' />
         <div v-if="!user.profile!.online" class='status-circle logged-out' />
     </div>

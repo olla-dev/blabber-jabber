@@ -75,7 +75,7 @@
           <button class="delete"></button>
           <ul>
             <li v-bind:key="index" v-for="(value, name, index) in error">
-              <strong>{{name}}</strong>: <span v-for="(msg, idx) in value" v-bind:key="idx">{{msg}}</span>
+              <strong>{{name}}</strong>: {{msgArray(value)}}
             </li>
           </ul>
         </div>
@@ -153,6 +153,9 @@ export default defineComponent({
     },
     registrationError() {
       return Object.keys(userModule.error).length != 0
+    },
+    msgArray(msg: Array<string>) {
+      return msg.join(', ')
     }
   }
 })

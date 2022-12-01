@@ -1,15 +1,25 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .serializers import *
-from .models import Profile
+from .models import Profile, ImageModel
 from django.contrib.auth.models import User
     
+class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageModel
+        fields = [
+            "img",
+            "img_url"
+        ]
 class UserProfileSerializer(serializers.ModelSerializer):
+    avatar = AvatarSerializer()
+
     class Meta:
         model = Profile
         fields = [
             "bio",
             "age",
+            "avatar",
             "online",
             "is_verified",
             "is_banned",
