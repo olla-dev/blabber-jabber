@@ -1,6 +1,8 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
-from urllib.request import urlopen
+from django.core.files import File  # you need this somewhere
+import urllib
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 
@@ -10,14 +12,11 @@ class ImageModel(models.Model):
     img_url = models.URLField(blank=True, null=True)
     
     def get_image_from_url(self, url):
-        img_tmp = NamedTemporaryFile(delete=True)
-        with urlopen(url) as uo:
-            assert uo.status == 200
-            img_tmp.write(uo.read())
-            img_tmp.flush()
-        img = File(img_tmp)
-        self.image.save(img_tmp.name, img)
-        self.image_url = url
+        self.img_url = url
+        result = urllib.request.urlretrieve(url) 
+        self.img.save(os.path.basename(self.img_url),
+            File(open(result[0], 'rb'))
+        )
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

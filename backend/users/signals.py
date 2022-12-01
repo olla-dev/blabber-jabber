@@ -11,7 +11,7 @@ from users.models import Profile, ImageModel
 def create_profile(sender, instance, created, **kwargs):
     if created:
         avatar = ImageModel()
-        avatar.get_image_from_url('http://i.stack.imgur.com/PIFN0.jpg')
+        avatar.get_image_from_url('https://cataas.com/cat')
         avatar.save()
         Profile.objects.create(user=instance, avatar=avatar)
 
