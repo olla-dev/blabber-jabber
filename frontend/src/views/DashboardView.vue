@@ -117,6 +117,7 @@ export default defineComponent({
     },
     showJoinPanel() {
       chatRoomModule.setSelectedRoom(undefined);
+      this.$router.push({ path: '/dashboard/join'});
     },
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
