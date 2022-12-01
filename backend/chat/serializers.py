@@ -39,5 +39,5 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 
     def get_messages(self, obj):
         # get latest 10 messages
-        messages = Message.objects.filter(room__id=obj.id).order_by('-sent_time_utc')[:10]
+        messages = Message.objects.filter(room__id=obj.id).order_by('sent_time_utc')[:10]
         return MessageSerializer(messages, many=True).data

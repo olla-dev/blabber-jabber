@@ -1,6 +1,12 @@
 <template>
     <div class="is-small">
-        <input class="input" type="text" placeholder="Write a new message" />
+        <input 
+            class="input" 
+            type="text" 
+            v-model="message"
+            @input="isTyping"
+            placeholder="Write a new message"
+            v-on:keyup.enter="sendMessage" />
     </div>
 </template>
 
@@ -8,6 +14,22 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-    name: 'MessageEditText'
+    name: 'MessageEditText',
+    data() {
+        return {
+            message: ''
+        }
+    },
+    methods: {
+        sendMessage() {
+            if(this.message != "") {
+                this.$emit('send', { message: this.message});
+                this.message = '';
+            }    
+        },
+        isTyping() {
+            this.$emit('typing');
+        }
+    }
 });
 </script>

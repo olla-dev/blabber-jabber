@@ -6,7 +6,7 @@ import {
   getModule,
   Action
 } from 'vuex-module-decorators'
-import { ChatRoom, UserStatus } from '@/utils/types/index'
+import { ChatRoom, Message, User, UserStatus } from '@/utils/types/index'
 import { chatRoomApi } from '@/api/chat.service'
 import store from './index'
 
@@ -15,6 +15,7 @@ class ChatRoomModule extends VuexModule {
   rooms: ChatRoom[] = [];
   other_rooms: ChatRoom[] = [];
   selectedChatRoom: ChatRoom | undefined = undefined;
+  userTyping: User = {} as User;
 
   /**
    * Returns a specific chat room by id
@@ -41,6 +42,23 @@ class ChatRoomModule extends VuexModule {
     } else {
       this.selectedChatRoom = undefined
     }
+  }
+
+  @Mutation
+  setUserTyping(user_id: number) {
+    this.userTyping = this.selectedChatRoom?.users.find((u: User) => u.id === user_id) as User;
+    setTimeout(() => {
+        this.userTyping = {} as User;
+    }, 3000);
+  }
+
+
+  @Mutation
+  newMessage(message: Message) {
+    if (this.selectedChatRoom) {
+      const messages = this.selectedChatRoom!.messages;
+      this.selectedChatRoom.messages =  [...messages, message];
+    }    
   }
   
   @Mutation

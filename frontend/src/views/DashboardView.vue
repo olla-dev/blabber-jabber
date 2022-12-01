@@ -24,7 +24,11 @@
           </aside>
         </div>
         <div class="column is-four-fifths">
-            <ChatRoomView v-if="selectedChatRoom" :room="selectedChatRoom" @leave="requestLeaveChatRoom" />
+            <ChatRoomView 
+              v-if="selectedChatRoom" 
+              :room="selectedChatRoom"
+              :user="user"
+              @leave="requestLeaveChatRoom" />
             <JoinChatRoom @join="requestJoinChatRoom"  v-else/>
         </div>
       </div>
@@ -124,7 +128,7 @@ export default defineComponent({
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
       let notify = this.$notify;
-      this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
+      this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL+'/lobby/');
       this.websocketConnection.onmessage = function (event: MessageEvent) {
         const eventJson = JSON.parse(event.data);
         const room: ChatRoom = eventJson['room'];
