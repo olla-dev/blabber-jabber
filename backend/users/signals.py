@@ -5,12 +5,15 @@ from asgiref.sync import async_to_sync
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 
-from users.models import Profile
+from users.models import Profile, ImageModel
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        avatar = ImageModel()
+        avatar.get_image_from_url('http://i.stack.imgur.com/PIFN0.jpg')
+        avatar.save()
+        Profile.objects.create(user=instance, avatar=avatar)
 
 @receiver(post_save, sender=User)
 def save_profile(sender, instance, **kwargs):
