@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.files import File  # you need this somewhere
 import urllib
 from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
 
 
 class ImageModel(models.Model):

@@ -61,4 +61,5 @@ export type ChatRoom = {
     updated_at: Date;
     users: User[];
     messages: Message[];
+    hasNewMessages: Boolean;
 };

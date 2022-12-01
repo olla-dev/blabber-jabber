@@ -4,7 +4,7 @@
                 <div class="navbar-menu">
                     <div class="navbar-start">
                         <div class="navbar-item title">
-                            <h2># <b>{{room.name}}</b></h2>
+                            <h2># <b>{{ room!.name}}</b></h2>
                         </div>
                     </div>
                     <div class="navbar-end">
@@ -26,19 +26,19 @@
                 </div>
             </nav>
             <div class="card-content message-list" ref="messageContainer">
-                <div class="columns">
-                    <div class="column p-0" v-if="room">
-                        <EmptyChatRoom v-if="room.messages.length == 0"/>
+                <div class="columns" v-if="room">
+                    <div class="column p-0">
+                        <EmptyChatRoom v-if="room!.messages.length == 0"/>
                         <MessageList 
                             v-else
-                            :messages="room.messages" />
+                            :messages="room!.messages" />
                         <UserTyping 
                             v-if="userTyping!.id"
                             :user="userTyping"
                             class="bottom-left"  />
                     </div>
                     <div class="column is-two-quarters top-right" v-if="userListShown">
-                        <UserList :users="room.users" />
+                        <UserList :users="room!.users" />
                     </div>
                 </div>
             </div>
@@ -53,13 +53,15 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useRoute } from 'vue-router';
 import MessageEditText  from '@/components/MessageEditText.vue'
 import UserList from '@/components/UserList.vue'
 import MessageList from '@/components/MessageList.vue'
 import EmptyChatRoom from '@/components/EmptyChatRoom.vue'
 import UserTyping from '@/components/UserTyping.vue'
-import { User } from '@/utils/types';
+import { ChatRoom, User } from '@/utils/types';
 import chatRoomModule from '@/store/rooms';
+import userModule from '@/store/users';
 
 export default defineComponent({
     name: 'ChatRoomView',
@@ -73,6 +75,7 @@ export default defineComponent({
     data() {
         return {
             userListShown: false,
+            room: {} as ChatRoom,
             websocketConnection: {} as WebSocket
         }
     },
@@ -80,30 +83,22 @@ export default defineComponent({
         userTyping(): User | undefined {
             return chatRoomModule.userTyping;
         },
+        user(): User {
+            return userModule.user;
+        }
     },
-    mounted() {
-        // init room websockt connection 
-        this.initWebSocketConnection();
+    created () {
+        // Fetch the physician with based on this.id
+        const route = useRoute();   console.log(route.params);
+        const room_id = parseInt(route.params.id.toString());
+        this.room = chatRoomModule.rooms.find((r: ChatRoom) => { return r.id == room_id }) as ChatRoom;
     },
     beforeUnmount() {
         this.websocketConnection.close();
     },
-    props: {
-        room: {
-            type: Object,
-            required: true,
-            default: () => ({ id: "", name: "", users: -1, messages: [] }),
-            // validator: (room) => ["id", "name", "users", "messages"].every((key) => key in room),
-        },
-        user: {
-            type: Object,
-            required: true,
-            default: () => ({ id: "", username: "", profile: {},  }),
-        },
-    },
     methods: {
         requestLeaveChatRoom() {
-            this.$emit('leave', { room: this.room.id})
+            this.$emit('leave', { room: this.room!.id})
         },
         showHideUserList() {
             this.userListShown = !this.userListShown;
@@ -113,25 +108,28 @@ export default defineComponent({
             this.websocketConnection.send(
                 JSON.stringify({
                     'command': 'typing',
-                    'user': this.$props.user.id
+                    'user': this.user.id
                 })
             );
         },
         sendMessage(event: any) {
             const message = event.message;
+
+            console.log('sending', this.room);
+            
       
             this.websocketConnection.send(
                 JSON.stringify({
                     'command': 'message',
                     'message': message,
-                    'user': this.$props.user.id,
-                    'room_id': this.$props.room.id
+                    'user': this.user.id,
+                    'room_id': this.room!.id
                 })
             );
         },
         initWebSocketConnection() {
-            console.log("Starting connection to Chat room channel")
-            this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL+'/room/'+this.room.name+'/');
+            console.log("Starting connection to Chat room channel: ", this.room!.name)
+            this.websocketConnection = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL+'/room/'+this.room!.name+'/');
             this.websocketConnection.onmessage = function (event: MessageEvent) {
                 const eventJson = JSON.parse(event.data);
                 
@@ -156,7 +154,11 @@ export default defineComponent({
         }
     },
     watch: { 
-        room: function(newVal, oldVal) { 
+        room: function(newVal, oldVal) {
+            if(newVal) {
+                // init room websockt connection 
+                this.initWebSocketConnection();
+            }
             this.$el.scrollTop = this.$el.lastElementChild.offsetTop;
         }
     }

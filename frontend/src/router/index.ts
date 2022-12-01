@@ -4,6 +4,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/users/LoginView.vue'
 import SignUpView from '../views/users/SignUpView.vue'
 import ProfileView from '../views/users/ProfileView.vue'
+import ChatRoomView from '../views/rooms/ChatRoomView.vue'
+import JoinChatRoom from '../views/rooms/JoinChatRoom.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,7 +26,18 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: DashboardView
+    component: DashboardView,
+    children: [
+      {
+        path: 'join',
+        component: JoinChatRoom
+      },
+      {
+        path: ':id',
+        name: 'ChatRoomView',
+        component: ChatRoomView,
+      }
+    ]
   },
   {
     path: '/profile',

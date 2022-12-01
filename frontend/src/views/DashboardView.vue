@@ -18,18 +18,13 @@
             </span>
             <Loading v-if="isLoading && rooms.length > 0" />
             <ul v-else class="menu-list scrollable">
-              <RoomListItem v-for="room in rooms"
+              <RoomListItem v-for="room in rooms" :notification="room.hasNewMessages"
                     v-bind:key="room.id" @load="loadChatRoom" :room="room" />
             </ul>
           </aside>
         </div>
         <div class="column is-four-fifths">
-            <ChatRoomView 
-              v-if="selectedChatRoom" 
-              :room="selectedChatRoom"
-              :user="user"
-              @leave="requestLeaveChatRoom" />
-            <JoinChatRoom @join="requestJoinChatRoom"  v-else/>
+            <router-view :key="$route.fullPath"/>
         </div>
       </div>
     </div>
@@ -41,16 +36,12 @@ import chatRoomModule from '@/store/rooms';
 import userModule from '@/store/users';
 import { ChatRoom } from '@/utils/types/types';
 import RoomListItem from '@/components/RoomListItem.vue';
-import JoinChatRoom from '@/views/rooms/JointChatRoom.vue';
-import ChatRoomView from '@/views/rooms/ChatRoomView.vue';
 import Loading from '@/components/Loading.vue';
 
 export default defineComponent({
   name: "DashboardView",
   components: {
     RoomListItem,
-    JoinChatRoom,
-    ChatRoomView,
     Loading
   },
   data() {
@@ -61,6 +52,7 @@ export default defineComponent({
   },
   mounted() {
     this.isLoading = true
+    this.$router.push({ path: '/dashboard/join'})
     // fetch user profile
     userModule.profile();
     // fetch chat rooms from REST API
@@ -88,9 +80,10 @@ export default defineComponent({
       var room_id = event.room
       console.log('selected room:', room_id);
       chatRoomModule.setSelectedRoomById(room_id);
+      this.$router.push({ name: "ChatRoomView", params: {id: room_id}})
     },
     requestJoinChatRoom(event: any) {
-      var room = this.rooms.find(room => room.name === event.room);
+      var room = this.rooms.find(room => room.name == event.room);
       if (room) {
         this.$notify({
           type: "success",
@@ -132,6 +125,7 @@ export default defineComponent({
       this.websocketConnection.onmessage = function (event: MessageEvent) {
         const eventJson = JSON.parse(event.data);
         const room: ChatRoom = eventJson['room'];
+        const room_id = parseInt(eventJson['room_id']);
         const result = parseInt(eventJson['result']); 
 
         switch (eventJson['command']) {
@@ -141,10 +135,15 @@ export default defineComponent({
               status: JSON.parse(eventJson['online'])
             });
             break;
-          case 'chat_room_update':
-            chatRoomModule.fetchRooms();
+          case 'chat_room_update': {
+            if(!room_id) {
+              chatRoomModule.fetchRooms();
+            } else {
+              chatRoomModule.roomNotification(eventJson);
+            }
             break;
-          case 'join':
+          }
+          case 'join':            
             if(result == 0) {
               chatRoomModule.fetchRooms();
               chatRoomModule.setSelectedRoom(room);

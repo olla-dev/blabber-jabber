@@ -6,7 +6,7 @@ class ChatRoomApi {
     async fetchRooms(): Promise<ChatRoom[] | ApiError> {
         const response = await httpClient.get('/rooms/');
         if(response.status == HttpCode.SUCCESS){
-            return response.data;
+            return response.data.results;
         } else {
             return {
                 code: response.status,

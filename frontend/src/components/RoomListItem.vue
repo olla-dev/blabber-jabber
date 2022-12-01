@@ -15,8 +15,10 @@
                 </div>
 
                 <!-- Right side -->
-                <div class="level-right">
-                    <span class="tag is-rounded is-danger">11</span>
+                <div class="level-right" v-if="room.hasNewMessages">
+                    <span class="tag is-danger">            
+                        <i class="fa fa-message"></i>
+                    </span>
                 </div>
             </nav>
         </a>
@@ -32,7 +34,7 @@ export default defineComponent({
         room: {
             type: Object,
             required: true,
-            default: () => ({ id: "", name: "", users: -1 }),
+            default: () => ({ id: "", name: "", users: -1, hasNewMessages: false }),
             // validator: (room) => ["id", "name", "users"].every((key) => key in room),
         },
     },
