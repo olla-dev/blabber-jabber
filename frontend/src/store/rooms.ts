@@ -14,6 +14,8 @@ class ChatRoomModule extends VuexModule {
   rooms: ChatRoom[] = [];
   other_rooms: ChatRoom[] = [];
   selectedChatRoom: ChatRoom | undefined = undefined;
+  joinChatRoom = '';
+  leaveChatRoom = -1;
   userTyping: User = {} as User;
 
   /**
@@ -31,6 +33,16 @@ class ChatRoomModule extends VuexModule {
   }
 
   @Mutation
+  requestJoinRoom(room_name: string) {
+    this.joinChatRoom = room_name;
+  }
+
+  @Mutation
+  requestLeaveRoom(room_id: number) {
+    this.leaveChatRoom = room_id;
+  }
+
+  @Mutation
   setSelectedRoom(room: ChatRoom | undefined) {
     if (room) {
       this.selectedChatRoom = this.rooms.find(r => r.id === room!.id);
@@ -41,6 +53,9 @@ class ChatRoomModule extends VuexModule {
     } else {
       this.selectedChatRoom = undefined
     }
+
+    this.joinChatRoom = '';
+    this.leaveChatRoom = -1;
   }
 
   @Mutation
@@ -91,12 +106,16 @@ class ChatRoomModule extends VuexModule {
   setSelectedRoomById(room_id: number) {    
     this.selectedChatRoom = this.rooms.find(r => r.id === room_id);    
     this.selectedChatRoom!.hasNewMessages = false;
+    this.joinChatRoom = '';
+    this.leaveChatRoom = -1;
   }
 
   @Mutation
   resetRooms() {
     this.rooms = [];
     this.other_rooms = [];
+    this.joinChatRoom = '';
+    this.leaveChatRoom = -1;
   }
 
   @MutationAction

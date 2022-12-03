@@ -8,6 +8,8 @@ A sample Realtime Chat application
 - [x] Users can read new messages.
 - [x] User can write and send new messages.
 
+**NB**: `users only see messages in the chat rooms they joined`
+
 ### Other features
 
 - [x] User can signup.
@@ -16,8 +18,10 @@ A sample Realtime Chat application
 - [ ] Admin of a chat room (first user) can kick other users
 
 ### Extra features
+- [x] See user status (online, offline)
 - [x] See who is typing in a chat room.
 - [x] Get notifications when a message is posted on a specific chat room
+- [x] Users can leave a chat room
 
 ---
 # How to run 

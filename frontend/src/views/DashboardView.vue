@@ -37,6 +37,7 @@ import userModule from '@/store/users';
 import { ChatRoom } from '@/utils/types/types';
 import RoomListItem from '@/components/RoomListItem.vue';
 import Loading from '@/components/Loading.vue';
+import router from '@/router';
 
 export default defineComponent({
   name: "DashboardView",
@@ -69,10 +70,16 @@ export default defineComponent({
       return userModule.user;
     },
     rooms(): ChatRoom[] {
-      return chatRoomModule.rooms
+      return chatRoomModule.rooms;
     },
     selectedChatRoom(): ChatRoom | undefined {
-      return chatRoomModule.getSelectedRoom
+      return chatRoomModule.getSelectedRoom;
+    },
+    joinChatRoom(): string | undefined {
+      return chatRoomModule.joinChatRoom;
+    },
+    leaveChatRoom(): number | undefined {
+      return chatRoomModule.leaveChatRoom;
     }
   },
   methods: {
@@ -82,31 +89,34 @@ export default defineComponent({
       chatRoomModule.setSelectedRoomById(room_id);
       this.$router.push({ name: "ChatRoomView", params: {id: room_id}})
     },
-    requestJoinChatRoom(event: any) {
-      var room = this.rooms.find(room => room.name == event.room);
+    requestJoinChatRoom(room_name: string) {
+      var room = this.rooms.find(room => room.name == room_name);
       if (room) {
         this.$notify({
           type: "success",
           text: "You are already member of this chat room!",
         });
         chatRoomModule.setSelectedRoom(room);
+        this.$router.push({ 
+          name: "ChatRoomView", 
+          params: {id: room.id}
+        })
       } else {
         this.websocketConnection.send(
           JSON.stringify({
             'command': 'join',
-            'room': event.room,
+            'room': room_name,
             'user': this.user.id
           })
         );
       }
     },
-    requestLeaveChatRoom(event: any) {
-      console.log('Leave room:', event.room);
-      
+    requestLeaveChatRoom(room_id: number) {
+      console.log('Leave room:', room_id);
       this.websocketConnection.send(
         JSON.stringify({
           'command': 'leave',
-          'room': event.room,
+          'room': room_id,
           'user': this.user.id
         })
       );
@@ -117,6 +127,7 @@ export default defineComponent({
     },
     showJoinPanel() {
       chatRoomModule.setSelectedRoom(undefined);
+      this.$router.push({ path: '/dashboard/join'})
     },
     initWebSocketConnection() {
       console.log("Starting connection to WebSocket Server")
@@ -152,6 +163,7 @@ export default defineComponent({
                 type: "success",
                 text: "Welcome to "+room.name,
               });
+              router.push({ name: "ChatRoomView", params: {id: room.id}})
             } else {
               notify({
                 type: "danger",
@@ -167,6 +179,7 @@ export default defineComponent({
               });
               chatRoomModule.fetchRooms();
               chatRoomModule.setSelectedRoom(undefined);
+              router.push({ path: "/dashboard/join" })
             } else {
               notify({
                 type: "danger",
@@ -212,6 +225,22 @@ export default defineComponent({
         }
       },
       deep: true
+    },
+    joinChatRoom: {
+      handler(newVal, oldVal) {
+        if (oldVal != newVal && newVal) {
+          this.requestJoinChatRoom(newVal)
+        }
+      },
+      deep: false
+    },
+    leaveChatRoom: {
+      handler(newVal, oldVal) {
+        if (oldVal != newVal && newVal != -1) {
+          this.requestLeaveChatRoom(newVal)
+        }
+      },
+      deep: false
     }
   },
 })

@@ -29,20 +29,23 @@
 </template>
 
 <script lang="ts">
+import chatRoomModule from '@/store/rooms';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'JoinChatRoom',
     data() {
         return {
-            room_name: '',
-            websocketConnection: {} as WebSocket
+            room_name: ''
         }
     },
     methods: {
         joinChatRoom() {
             if(this.room_name != '')
-                this.$emit('join', { room: this.room_name});
+                chatRoomModule.requestJoinRoom(this.room_name);
+            else
+                chatRoomModule.requestJoinRoom('');
+
         }
     }
 });
