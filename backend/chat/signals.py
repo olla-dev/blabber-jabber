@@ -6,12 +6,13 @@ from asgiref.sync import async_to_sync
 from django.core.cache import cache
 from chat.serializers import MessageSerializer
 
+
 from .models import ChatRoom, Message
 
 @receiver(m2m_changed, sender=ChatRoom.users.through)
-def cart_update_total_when_item_added(sender, instance, action, *args, **kwargs):
+def room_users_update(sender, instance, action, *args, **kwargs):
     if action == 'post_add':
-        print('ChatRoom update (add)')
+        print('ChatRoom update (add user)')
         # update cache
         cached_rooms = cache.get("rooms")
         if cached_rooms:
@@ -24,11 +25,9 @@ def cart_update_total_when_item_added(sender, instance, action, *args, **kwargs)
         })
 
     if action == 'post_remove':
-        print('ChatRoom update (remove)')
-        # update cache
-        cached_rooms = cache.get("rooms")
-        if instance in cached_rooms:
-            cache.delete("rooms")
+        print('ChatRoom update (remove user)')
+        # reset cache
+        cache.delete("rooms")
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)('chat', {

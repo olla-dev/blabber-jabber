@@ -89,7 +89,7 @@ export default defineComponent({
     },
     created () {
         // Fetch the physician with based on this.id
-        const route = useRoute();   console.log(route.params);
+        const route = useRoute();
         const room_id = parseInt(route.params.id.toString());
         this.room = chatRoomModule.rooms.find((r: ChatRoom) => { return r.id == room_id }) as ChatRoom;
     },
@@ -98,7 +98,7 @@ export default defineComponent({
     },
     methods: {
         requestLeaveChatRoom() {
-            this.$emit('leave', { room: this.room!.id})
+            chatRoomModule.requestLeaveRoom(this.room!.id)
         },
         showHideUserList() {
             this.userListShown = !this.userListShown;
@@ -114,10 +114,7 @@ export default defineComponent({
         },
         sendMessage(event: any) {
             const message = event.message;
-
             console.log('sending', this.room);
-            
-      
             this.websocketConnection.send(
                 JSON.stringify({
                     'command': 'message',
