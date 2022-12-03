@@ -159,10 +159,18 @@ Based on django signals, which allow to listen for specific events across the ap
 For more information: `backend/chat/signals.py` and `backend/users/signals.py`
 
 ## REST API
-
-### Listing Chat Rooms
-
-### Authentication
+The used API endpoints at this point are: 
+- List Chat Rooms: 
+  - Endpoint: GET `/api/v1/rooms/`
+  - Returns a list of paginated rooms 
+    - ![](demo/rooms.png)
+- Room details: 
+  - Endpoint: GET `/api/v1/rooms/{id}/`
+  - Returns room details including its users and messages
+- Message list:
+  - Endpoint: GET `/api/v1/rooms/{room_id}/messages/`
+- User authentication: 
+  - This handled by the djoser library using Token based authentication. See available endpoints here: https://djoser.readthedocs.io/
 
 # Limitations and todos
 The current code has certain limitations:

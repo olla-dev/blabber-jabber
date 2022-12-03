@@ -1,12 +1,10 @@
 from .pagination import ResultPagination
 from rest_framework.response import Response
 from .serializers import MessageSerializer, ChatRoomSerializer
-from rest_framework import viewsets, generics, status
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, status
 from django.http import Http404
 from django.core.cache import cache
-from django.db.models import Q
 from .models import Message, ChatRoom
 
 from core.settings import CACHE_TTL
@@ -33,29 +31,31 @@ class RoomListView(viewsets.ReadOnlyModelViewSet):
                 my_rooms.append(r)
         return my_rooms
 
+    def retrieve(self, request, id=None):
+        queryset = ChatRoom.objects.prefetch_related('users').filter(pk=id)
+        room = get_object_or_404(queryset, pk=id)
+        serializer = ChatRoomSerializer(room)
+        return Response(serializer.data)
+
+
 class RoomMessageListView(viewsets.ModelViewSet):
     '''This ViewSet serves a room's latest 10 messages'''
     model = Message
     serializer_class = MessageSerializer
     pagination_class = ResultPagination
+    lookup_field='id'
 
     def get_queryset(self):
         # get room id from url
         room_id = self.kwargs['room_id']
         return Message.objects.filter(room__id=room_id).order_by('sent_time_utc')[:10]
 
-@method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class RoomDetailView(viewsets.ModelViewSet):
     """
-    Retrieve, update or delete a chat room instance.
+    Update or delete a chat room instance.
     """
     serializer_class = ChatRoomSerializer
     pagination_class = ResultPagination
-
-    def get_queryset(self):
-        # here drf-nested-router appends parent name to the query param, hence use vessel_vessel_id below
-        room_id = self.kwargs['pk']
-        return ChatRoom.objects.prefetch_related('users').filter(id=room_id)
     
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
