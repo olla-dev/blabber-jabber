@@ -37,7 +37,7 @@ def post_login(sender, user, request, **kwargs):
 
 
 @receiver(user_logged_out)
-def post_login(sender, user, request, **kwargs):
+def post_logout(sender, user, request, **kwargs):
     print('User just logged out....')
     user.profile.online = False
     user.profile.save()

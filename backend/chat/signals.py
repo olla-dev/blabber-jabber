@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from functools import wraps
 from chat.serializers import MessageSerializer
 
 
@@ -13,7 +12,7 @@ from .models import ChatRoom, Message
 @receiver(m2m_changed, sender=ChatRoom.users.through)
 def room_users_update(sender, instance, action, *args, **kwargs):
     if action == 'post_add':
-        print('ChatRoom update (add)')
+        print('ChatRoom update (add user)')
         # update cache
         cached_rooms = cache.get("rooms")
         if cached_rooms:
@@ -26,7 +25,7 @@ def room_users_update(sender, instance, action, *args, **kwargs):
         })
 
     if action == 'post_remove':
-        print('ChatRoom update (remove)')
+        print('ChatRoom update (remove user)')
         # reset cache
         cache.delete("rooms")
 
