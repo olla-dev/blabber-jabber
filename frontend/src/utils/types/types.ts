@@ -12,7 +12,7 @@ export type UserStatus = {
 }
 
 export type UserProfile = {
-    avatar: string;
+    avatar?: string;
     bio: string;
     age: number;
     is_verified: boolean;

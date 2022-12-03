@@ -92,6 +92,10 @@ class HttpClient {
     return await this.client.put(url, body).then((response: AxiosResponse) => response);
   }
 
+  async patch<T>(url: string, body: T) {
+    return await this.client.patch(url, body).then((response: AxiosResponse) => response);
+  }
+
   async delete(url: string) {
     return await this.client.delete(url).then((response: AxiosResponse) => response.status);
   }

@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['DEBUG']
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blabber-ui']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blabber-frontend']
 
 CORS_ORIGIN_ALLOW_ALL = False
 
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
+    'http://blabber-frontend:3000'
 ]
 
 MIDDLEWARE = [

@@ -53,6 +53,18 @@ class UserApi {
             }
         }
     }
+
+    async updateProfile(user: User): Promise<User | ApiError > {
+        const response = await httpClient.patch('users/me/', user);
+        if(response.status == HttpCode.SUCCESS){
+            return response.data;
+        } else {
+            return {
+                code: response.status,
+                error: response.data
+            }
+        }
+    }
 }
 
 export const userApi = new UserApi();

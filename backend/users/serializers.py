@@ -11,8 +11,9 @@ class AvatarSerializer(serializers.ModelSerializer):
             "img",
             "img_url"
         ]
+
 class UserProfileSerializer(serializers.ModelSerializer):
-    avatar = AvatarSerializer()
+    avatar = AvatarSerializer(required=False)
 
     class Meta:
         model = Profile
@@ -31,7 +32,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileSerializer()
+    profile = UserProfileSerializer(read_only=True)
 
     class Meta:
         model = User

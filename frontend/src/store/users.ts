@@ -5,7 +5,7 @@ import {
   getModule,
   Mutation
 } from 'vuex-module-decorators'
-import { UserCredentials, UserRegister } from '@/utils/types/index'
+import { User, UserCredentials, UserRegister } from '@/utils/types/index'
 import { userApi } from '@/api/user.service'
 import store from './index'
 import { HttpCode } from '@/api/http_codes';
@@ -138,6 +138,33 @@ class UserModule extends VuexModule {
         authToken: '', 
         user: {}, 
         isAuthenticated: false
+      }
+    }
+
+    @MutationAction
+    async updateProfile(user: User) {
+      try {
+        const response: any = await userApi.updateProfile(user);
+        if(response.error) {
+          console.log('Update profile failed');
+          return {
+              errorCode: response.code,
+              error: response.error
+          }
+        } else {
+          console.log('Update profile success');
+          
+          return {
+              user: {...response.data},
+              errorCode: undefined,
+              error: {}
+          }
+        }
+      } catch (error: any) {
+        return {
+            errorCode: error.status,
+            error: error.data
+        }
       }
     }
 
