@@ -2,6 +2,9 @@
 A sample Realtime Chat application
 
 ![](demo/blabber1.gif)
+![](demo/blabber2.gif)
+![](demo/blabber3.gif)
+![](demo/blabber4.gif)
 
 ### What is implemented
 - [x] User join or create a chat room by entering a name.
@@ -30,7 +33,7 @@ A sample Realtime Chat application
 
 A version of the project is deployed under https://blabber.playground.codeplumbers.eu, but it is a WIP. I've had issues with deploying the websocket service behind a reverse proxy (nginx) and traefik :/. I didn't have the time to fix this.
 
-There are two .env files that need to be created:
+To run the app locally, there are two .env files that need to be created:
 - <root>**/.env** (see .env.sample)
   ```
     SECRET_KEY=django-fake*-secret-key
@@ -161,13 +164,13 @@ For more information: `backend/chat/signals.py` and `backend/users/signals.py`
 
 ### Authentication
 
-# DEMO
-
 # Limitations and todos
 The current code has certain limitations:
 - User profile management is still a WIP (branch: `BLAB-010-user-profile`)
 - Simplify and refactor websocket client instances to decouple from vue Views.
 - Handle token refreshes and disconnect on auth errors
+- Integration test the API
+- UI tests (selenium), JEST
   
 ## Ideas 
 - add message search (using PostgreSQL fulltext search or elastic search)
