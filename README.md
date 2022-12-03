@@ -1,6 +1,8 @@
 # blabber-jabber
 A sample Realtime Chat application
 
+![](demo/blabber1.gif)
+
 ### What is implemented
 - [x] User join or create a chat room by entering a name.
 - [x] User see the list of users in the chat room
